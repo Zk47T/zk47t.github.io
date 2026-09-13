@@ -455,6 +455,28 @@ a.author-name:hover { color: var(--accent); }
 .series-more .series-body { padding: 8px 12px 10px; }
 .series-more .series-body h3 { font-size: .82rem; }
 
+/* bình luận */
+.comments { margin-top: 32px; }
+.comments .section-title { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; }
+.comments .section-title .count { font-size: .72rem; color: var(--muted); }
+.comment-list { list-style: none; margin: 0 0 16px; padding: 0; display: grid; gap: 10px; }
+.comment { padding: 10px 14px; background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius); }
+.comment-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
+.comment-head strong { font-family: var(--font-mono); font-size: .85rem; color: var(--heading); overflow-wrap: anywhere; }
+.comment-head time { font-family: var(--font-mono); font-size: .68rem; color: var(--muted); white-space: nowrap; }
+.comment-text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font-size: .95rem; line-height: 1.6; }
+.comment-empty { font-size: .88rem; color: var(--muted); }
+.comment-form { display: grid; gap: 8px; }
+.comment-form input, .comment-form textarea { width: 100%; padding: 9px 12px; font: inherit; font-size: .95rem; color: var(--text); background: var(--bg-2); border: 1px solid var(--border); border-radius: 6px; resize: vertical; }
+.comment-form input:focus, .comment-form textarea:focus { outline: none; border-color: var(--accent); }
+.comment-form .comment-name { max-width: 320px; }
+.comment-hp { position: absolute !important; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.comment-actions { display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
+.comment-status { font-size: .82rem; color: var(--muted); }
+.comment-actions button { padding: 8px 16px; border-radius: 6px; background: var(--accent); color: #fff; font-family: var(--font-mono); font-size: .8rem; }
+.comment-actions button:hover { filter: brightness(1.1); }
+.comment-actions button:disabled { opacity: .6; cursor: wait; }
+
 .infinite-status { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 32px 0; font-family: var(--font-mono); font-size: .78rem; color: var(--muted); }
 .spinner { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }

@@ -34,7 +34,9 @@ jobs:
       - id: pages
         uses: actions/configure-pages@v5
       - name: Build
-        run: hugo --gc --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
+        # baseURL lấy từ hugo.yaml (https://embeddedlinux.blog/). Không dùng base_url của configure-pages:
+        # nó trả http:// khi Enforce HTTPS chưa bật, làm canonical/og:image sai.
+        run: hugo --gc --minify
       - name: Search index (Pagefind)
         run: npx --yes pagefind@1.5.2 --site public   # ghim bản: giao diện search dùng JS API của 1.5.x
       - uses: actions/upload-pages-artifact@v3

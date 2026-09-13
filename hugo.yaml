@@ -180,5 +180,12 @@ params:
   # Chỉ chèn script khi build production (hugo server không đếm). Infinite scroll đã tự báo lượt xem từng bài.
   analytics:
     goatcounter: "zk47t"         # dashboard: https://zk47t.goatcounter.com/
+  # Bình luận không cần đăng nhập (tên + nội dung), lưu vào Google Sheet, báo email chủ blog.
+  # Cài đặt: xem hướng dẫn đầu file tools/comments/Code.gs, rồi dán "Web app URL" vào endpoint. Để trống = ẩn khung bình luận.
   comments:
-    giscus: false                # bật sau khi tạo GitHub Discussions
+    endpoint: "https://script.google.com/macros/s/AKfycbzBCEFsTvJ_SY8vr_kL8MiNb1NCGBYJl-PKp5YWtJ8KR37U1-JsxfmK0fQF3sC5Wvs3/exec"
+  # Số lượt xem ở đầu bài: số ngẫu nhiên cố định theo từng bài trong khoảng min..max (bản VI và EN cùng số).
+  views:
+    enable: true
+    min: 1000
+    max: 2000

@@ -28,6 +28,12 @@
       {{- end }}
       <span>{{ partial "icons.html" "calendar" }}<time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "02/01/2006" }}</time></span>
       <span>{{ partial "icons.html" "clock" }}{{ .ReadingTime }} {{ T "readingTime" }}</span>
+      {{- with site.Params.views }}{{ if .enable }}
+        {{- /* số cố định theo bài: băm tên file bài rồi đưa về khoảng min..max */ -}}
+        {{- $h := int (printf "0x%s" (substr (md5 $.File.ContentBaseName) 0 7)) -}}
+        {{- $n := add (int .min) (mod $h (add (sub (int .max) (int .min)) 1)) -}}
+        <span class="views">{{ partial "icons.html" "eye" }}{{ lang.FormatNumber 0 $n }} {{ T "views" }}</span>
+      {{- end }}{{ end -}}
       {{- with .Params.boards }}<span>{{ partial "icons.html" "board" }}<a href="{{ (site.GetPage (printf "/boards/%s" ((index . 0) | urlize))).RelPermalink }}">{{ index . 0 }}</a></span>{{ end -}}
       {{- if and .Lastmod (ne (.Lastmod.Format "2006-01-02") (.Date.Format "2006-01-02")) }}<span class="updated">{{ T "lastUpdated" }} {{ .Lastmod.Format "02/01/2006" }}</span>{{ end -}}
     </div>
@@ -60,6 +66,7 @@
         {{ with $prev }}<a class="prev" href="{{ .RelPermalink }}"><small>{{ T "prevInSeries" }}</small>{{ .Title }}</a>{{ else }}<span></span>{{ end }}
         {{ with $next }}<a class="next" href="{{ .RelPermalink }}"><small>{{ T "nextInSeries" }}</small>{{ .Title }}</a>{{ else }}<span class="end"><small>{{ T "seriesLabel" }}</small>{{ T "endOfSeries" }}</span>{{ end }}
       </nav>
+      {{ partial "comments.html" . }}
       {{- /* hết series -> liệt kê thẳng các series khác */ -}}
       {{- if not $next }}{{ partial "series-more.html" (dict "exclude" $seriesName "title" (T "otherSeries")) }}{{ end }}
     {{- else }}
@@ -74,6 +81,7 @@
         {{ with $older }}<a class="prev" href="{{ .RelPermalink }}"><small>{{ T "olderPost" }}</small>{{ .Title }}</a>{{ else }}<span></span>{{ end }}
         {{ with $newer }}<a class="next" href="{{ .RelPermalink }}"><small>{{ T "newerPost" }}</small>{{ .Title }}</a>{{ else }}<span></span>{{ end }}
       </nav>
+      {{ partial "comments.html" . }}
       {{ partial "series-more.html" (dict "exclude" "" "title" (T "readSeries")) }}
     {{- end }}
   </footer>

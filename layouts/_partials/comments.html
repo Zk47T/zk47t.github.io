@@ -1,0 +1,20 @@
+{{- /* Khung bình luận (tên + nội dung). Dữ liệu qua Google Apps Script (params.comments.endpoint, xem tools/comments/Code.gs).
+       Thread = tên file bài (không kèm ngôn ngữ): bản VI và EN dùng chung bình luận. Endpoint trống thì không hiện gì. */ -}}
+{{- with site.Params.comments.endpoint }}
+<section class="comments" data-endpoint="{{ . }}" data-thread="posts/{{ $.File.ContentBaseName }}" data-title="{{ $.Title }}" data-url="{{ $.RelPermalink }}" data-locale="{{ $.Language.Lang }}"
+         data-msg-empty="{{ T "commentsEmpty" }}" data-msg-error="{{ T "commentsLoadError" }}" data-msg-sending="{{ T "commentSending" }}" data-msg-sent="{{ T "commentSent" }}"
+         data-msg-invalid="{{ T "commentInvalid" }}" data-msg-toofast="{{ T "commentTooFast" }}" data-msg-slowdown="{{ T "commentSlowDown" }}"
+         data-msg-toomanylinks="{{ T "commentTooManyLinks" }}" data-msg-failed="{{ T "commentFailed" }}">
+  <h2 class="section-title">{{ partial "icons.html" "comment" }} {{ T "comments" }} <span class="count" hidden></span></h2>
+  <ol class="comment-list" aria-live="polite"><li class="comment-empty">{{ T "commentsLoading" }}</li></ol>
+  <form class="comment-form" novalidate>
+    <input class="comment-name" name="name" maxlength="40" autocomplete="nickname" placeholder="{{ T "commentName" }}" aria-label="{{ T "commentName" }}" required>
+    <textarea class="comment-body" name="body" maxlength="2000" rows="4" placeholder="{{ T "commentBody" }}" aria-label="{{ T "commentBody" }}" required></textarea>
+    <input class="comment-hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <div class="comment-actions">
+      <span class="comment-status" role="status"></span>
+      <button type="submit">{{ T "commentSubmit" }}</button>
+    </div>
+  </form>
+</section>
+{{- end -}}

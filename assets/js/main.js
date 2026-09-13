@@ -223,6 +223,65 @@
     });
   }
 
+  /* ---------------- bình luận (Google Apps Script) ----------------
+     Mỗi .comments tự tải khi cuộn tới gần; bài nạp thêm bằng infinite scroll gọi initComments(article). */
+  const COMMENT_ERR = { invalid: 'Invalid', too_fast: 'Toofast', slow_down: 'Slowdown', too_many_links: 'Toomanylinks' };
+  function initComments(root) {
+    $$('.comments', root || document).forEach(box => {
+      if (box._init) return; box._init = true;
+      const ep = box.dataset.endpoint, list = $('.comment-list', box), form = $('.comment-form', box);
+      const status = $('.comment-status', box), countEl = $('.section-title .count', box), nameInput = $('.comment-name', form);
+      const msg = (k) => box.dataset['msg' + k] || '';
+      const fmt = new Intl.DateTimeFormat(box.dataset.locale === 'vi' ? 'vi-VN' : 'en-GB', { dateStyle: 'medium', timeStyle: 'short' });
+      const openedAt = Date.now();
+      let count = 0;
+      try { nameInput.value = localStorage.getItem('comment-name') || ''; } catch (e) {}
+
+      const note = (text) => Object.assign(document.createElement('li'), { className: 'comment-empty', textContent: text });
+      const item = (c) => {
+        const li = document.createElement('li'); li.className = 'comment';
+        const head = document.createElement('div'); head.className = 'comment-head';
+        const who = document.createElement('strong'); who.textContent = c.name;
+        const when = document.createElement('time'); when.dateTime = c.time; when.textContent = fmt.format(new Date(c.time));
+        const text = document.createElement('p'); text.className = 'comment-text'; text.textContent = c.body;   // chỉ text, không chèn HTML
+        head.append(who, when); li.append(head, text); return li;
+      };
+      const setCount = (n) => { count = n; countEl.textContent = n; countEl.hidden = !n; };
+
+      async function load() {
+        try {
+          const res = await fetch(ep + '?thread=' + encodeURIComponent(box.dataset.thread));
+          const data = await res.json();
+          if (!data.ok) throw new Error(data.error);
+          list.replaceChildren(...(data.comments.length ? data.comments.map(item) : [note(msg('Empty'))]));
+          setCount(data.comments.length);
+        } catch (e) { list.replaceChildren(note(msg('Error'))); }
+      }
+      const io = new IntersectionObserver((en) => { if (en.some(x => x.isIntersecting)) { io.disconnect(); load(); } }, { rootMargin: '400px 0px' });
+      io.observe(box);
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const bodyInput = $('.comment-body', form), name = nameInput.value.trim(), body = bodyInput.value.trim();
+        if (!name || !body) { status.textContent = msg('Invalid'); return; }
+        const btn = $('button', form); btn.disabled = true; status.textContent = msg('Sending');
+        try {
+          // body là chuỗi -> Content-Type text/plain: "simple request", không cần preflight CORS với Apps Script
+          const res = await fetch(ep, { method: 'POST', body: JSON.stringify({
+            thread: box.dataset.thread, url: box.dataset.url, title: box.dataset.title, name, body,
+            website: $('.comment-hp', form).value, elapsed: Date.now() - openedAt }) });
+          const data = await res.json();
+          if (!data.ok) { status.textContent = msg(COMMENT_ERR[data.error] || 'Failed'); return; }
+          if (data.comment) { if (!count) list.replaceChildren(); list.appendChild(item(data.comment)); setCount(count + 1); }
+          bodyInput.value = ''; status.textContent = msg('Sent');
+          try { localStorage.setItem('comment-name', name); } catch (err) {}
+        } catch (err) { status.textContent = msg('Failed'); }
+        finally { btn.disabled = false; }
+      });
+    });
+  }
+  initComments();
+
   /* ---------------- infinite scroll trong series ----------------
      Hết bài -> fetch bài kế tiếp (data-next) và nối <article> vào dưới.
      Bài đang chiếm phần trên màn hình = bài "đang đọc": đổi URL (replaceState,
@@ -300,6 +359,7 @@
         remember(art, doc);
         art.querySelectorAll('img[loading]').forEach(i => i.loading = 'lazy');
         status.before(art);
+        initComments(art);
         articles.push(art);
         watchEnd(art);
         onScroll();

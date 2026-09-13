@@ -1,0 +1,32 @@
+{{- /* Cột phải trang chủ: "Người đóng góp" - slideshow các card tác giả (sắp theo số bài), tự chuyển, rê chuột thì dừng;
+       1 tác giả thì hiện tĩnh. + nút góp bài. */ -}}
+{{- $rows := slice -}}
+{{- range $id, $a := hugo.Data.authors }}
+  {{- $keys := slice -}}
+  {{- range hugo.Sites }}{{ with index .Taxonomies.authors $id }}{{ range .Pages }}{{ $keys = $keys | append .TranslationKey }}{{ end }}{{ end }}{{ end -}}
+  {{- $n := len ($keys | uniq) -}}
+  {{- $rows = $rows | append (dict "id" $id "count" $n) -}}
+{{- end -}}
+{{- $rows = sort $rows "count" "desc" -}}
+{{- $many := gt (len $rows) 1 -}}
+<aside class="home-side">
+  <section class="side-box authors-box" aria-label="{{ T "authorsBoard" }}">
+    <h2 class="side-title">{{ partial "icons.html" "users" }} {{ T "authorsBoard" }}{{ if $many }} <span class="count">{{ len $rows }}</span>{{ end }}</h2>
+    <div class="author-slider" data-slider{{ if $many }} data-auto="6000"{{ end }}>
+      <div class="author-slides">
+        {{- range $rows }}<div class="author-slide">{{ partial "author-card.html" (dict "id" .id "page" $ "variant" "side") }}</div>{{ end }}
+      </div>
+      {{- if $many }}
+      <div class="slider-nav">
+        <button type="button" class="prev" aria-label="{{ T "prevInSeries" }}">{{ partial "icons.html" "arrow-left" }}</button>
+        <div class="dots">{{ range $i, $r := $rows }}<button type="button" class="dot{{ if not $i }} active{{ end }}" aria-label="{{ $i | add 1 }}"></button>{{ end }}</div>
+        <button type="button" class="next" aria-label="{{ T "nextInSeries" }}">{{ partial "icons.html" "arrow-right" }}</button>
+      </div>
+      {{- end }}
+    </div>
+    {{- with site.Params.contribute_url }}
+      <a class="contribute" href="{{ . }}" target="_blank" rel="noopener">{{ partial "icons.html" "pen" }} {{ T "contribute" }}</a>
+      <p class="contribute-hint">{{ T "contributeHint" }}</p>
+    {{- end }}
+  </section>
+</aside>

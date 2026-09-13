@@ -1,0 +1,25 @@
+{{ define "main-class" }}list series-page{{ end }}
+{{ define "main" }}
+  {{- $pages := sort (sort .Pages "Date" "asc") "Params.series_order" "asc" -}}
+  {{- $first := index $pages 0 -}}
+  <header class="page-head with-thumb">
+    {{ with $first.Params.image }}<img class="head-thumb" src="{{ . }}" alt="">{{ end }}
+    <div>
+      <p class="kicker">{{ T "seriesLabel" }}</p>
+      <h1>{{ .Title }}</h1>
+      <p class="lead">{{ len $pages }} {{ T "posts" }}{{ with $first.Params.boards }} · <a href="{{ (site.GetPage (printf "/boards/%s" ((index . 0) | urlize))).RelPermalink }}">{{ index . 0 }}</a>{{ end }}</p>
+    </div>
+  </header>
+  {{ .Content }}
+  <ol class="series-list">
+    {{- range $pages }}
+      <li>
+        <span class="n">{{ if isset .Params "series_order" }}{{ .Params.series_order }}{{ else }}·{{ end }}</span>
+        <div class="series-item">
+          <a class="t" href="{{ .RelPermalink }}">{{ .Title }}</a>
+          <div class="d"><time>{{ .Date.Format "02/01/2006" }}</time>{{ with .Description }} · {{ . }}{{ end }}</div>
+        </div>
+      </li>
+    {{- end }}
+  </ol>
+{{ end }}

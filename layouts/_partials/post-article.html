@@ -1,0 +1,80 @@
+{{- /* Một bài viết đầy đủ (dùng cho trang bài và cho infinite scroll fetch). Ngữ cảnh: page */ -}}
+{{- $p := . -}}
+{{- $seriesName := "" -}}{{- $term := "" -}}{{- $prev := "" -}}{{- $next := "" -}}{{- $idx := 0 -}}{{- $total := 0 -}}
+{{- with .Params.series }}
+  {{- $seriesName = index . 0 -}}
+  {{- $term = site.GetPage (printf "/series/%s" ($seriesName | urlize)) -}}
+  {{- with $term }}
+    {{- $pages := sort (sort .Pages "Date" "asc") "Params.series_order" "asc" -}}
+    {{- $total = len $pages -}}
+    {{- range $i, $q := $pages }}
+      {{- if eq $q.RelPermalink $p.RelPermalink }}
+        {{- $idx = add $i 1 -}}
+        {{- if gt $i 0 }}{{ $prev = index $pages (sub $i 1) }}{{ end -}}
+        {{- if lt (add $i 1) $total }}{{ $next = index $pages (add $i 1) }}{{ end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+<article class="post" id="post-{{ .File.UniqueID }}" data-url="{{ .RelPermalink }}" data-title="{{ .Title }}"{{ with $next }} data-next="{{ .RelPermalink }}"{{ end }}{{ with .Params.image }} data-pagefind-meta="image:{{ . }}"{{ end }} data-pagefind-body>
+  <header class="post-head">
+    {{- with .Params.categories }}<div class="cats" data-pagefind-ignore>{{ range $i, $c := . }}{{ if $i }}, {{ end }}<a href="{{ (site.GetPage (printf "/categories/%s" ($c | urlize))).RelPermalink }}">{{ $c }}</a>{{ end }}</div>{{ end -}}
+    <h1 class="post-title">{{ .Title }}</h1>
+    <div class="post-meta" data-pagefind-ignore>
+      {{- range .Params.authors | default (slice site.Params.default_author) }}
+        {{- $a := index hugo.Data.authors . -}}
+        {{- $t := site.GetPage (printf "/authors/%s" .) -}}
+        <span class="byline">{{ partial "icons.html" "about" }}{{ if $t }}<a href="{{ $t.RelPermalink }}">{{ with $a }}{{ .name }}{{ else }}{{ $t.Title }}{{ end }}</a>{{ else }}{{ with $a }}{{ .name }}{{ else }}{{ . }}{{ end }}{{ end }}</span>
+      {{- end }}
+      <span>{{ partial "icons.html" "calendar" }}<time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "02/01/2006" }}</time></span>
+      <span>{{ partial "icons.html" "clock" }}{{ .ReadingTime }} {{ T "readingTime" }}</span>
+      {{- with .Params.boards }}<span>{{ partial "icons.html" "board" }}<a href="{{ (site.GetPage (printf "/boards/%s" ((index . 0) | urlize))).RelPermalink }}">{{ index . 0 }}</a></span>{{ end -}}
+      {{- if and .Lastmod (ne (.Lastmod.Format "2006-01-02") (.Date.Format "2006-01-02")) }}<span class="updated">{{ T "lastUpdated" }} {{ .Lastmod.Format "02/01/2006" }}</span>{{ end -}}
+    </div>
+    {{- with $term }}
+      <div class="series-box" data-pagefind-ignore>
+        <div>{{ T "partOfSeries" }} <a href="{{ .RelPermalink }}"><strong>{{ $seriesName }}</strong></a> · {{ $idx }}/{{ $total }}</div>
+        <div class="nav">
+          {{ with $prev }}<a href="{{ .RelPermalink }}" rel="prev">← {{ .Title }}</a>{{ end }}
+          {{ with $next }}<a href="{{ .RelPermalink }}" rel="next">{{ .Title }} →</a>{{ end }}
+        </div>
+      </div>
+    {{- end }}
+  </header>
+
+  {{- if eq .Params.translation "auto" }}
+    {{- $orig := "" -}}{{- range .Translations }}{{ if eq .Language.Lang "vi" }}{{ $orig = .RelPermalink }}{{ end }}{{ end -}}
+    <p class="translation-note" data-pagefind-ignore>{{ T "autoTranslated" }}{{ with $orig }} <a href="{{ . }}">{{ T "readOriginal" }} →</a>{{ end }}</p>
+  {{- end }}
+  <div class="post-content">
+    {{ .Content }}
+  </div>
+
+  <footer class="post-foot" data-pagefind-ignore>
+    {{- with .Params.tags }}<div class="tags">{{ range . }}<a href="{{ (site.GetPage (printf "/tags/%s" (. | urlize))).RelPermalink }}">#{{ . }}</a>{{ end }}</div>{{ end -}}
+    <div class="foot-links">
+      <a href="{{ site.Params.edit_base }}/{{ .File.Path }}" target="_blank" rel="noopener">{{ partial "icons.html" "edit" }} {{ T "editOnGitHub" }}</a>
+    </div>
+    {{- if $term }}
+      <nav class="post-nav">
+        {{ with $prev }}<a class="prev" href="{{ .RelPermalink }}"><small>{{ T "prevInSeries" }}</small>{{ .Title }}</a>{{ else }}<span></span>{{ end }}
+        {{ with $next }}<a class="next" href="{{ .RelPermalink }}"><small>{{ T "nextInSeries" }}</small>{{ .Title }}</a>{{ else }}<span class="end"><small>{{ T "seriesLabel" }}</small>{{ T "endOfSeries" }}</span>{{ end }}
+      </nav>
+      {{- /* hết series -> liệt kê thẳng các series khác */ -}}
+      {{- if not $next }}{{ partial "series-more.html" (dict "exclude" $seriesName "title" (T "otherSeries")) }}{{ end }}
+    {{- else }}
+      {{- /* bài lẻ (không thuộc series): bài cũ hơn / mới hơn theo ngày trong cùng ngôn ngữ + lưới series để đọc tiếp */ -}}
+      {{- $all := (where site.RegularPages "Section" "posts").ByDate -}}
+      {{- $older := "" -}}{{- $newer := "" -}}
+      {{- range $i, $q := $all }}{{ if eq $q.RelPermalink $p.RelPermalink }}
+        {{- if gt $i 0 }}{{ $older = index $all (sub $i 1) }}{{ end -}}
+        {{- if lt (add $i 1) (len $all) }}{{ $newer = index $all (add $i 1) }}{{ end -}}
+      {{ end }}{{ end -}}
+      <nav class="post-nav">
+        {{ with $older }}<a class="prev" href="{{ .RelPermalink }}"><small>{{ T "olderPost" }}</small>{{ .Title }}</a>{{ else }}<span></span>{{ end }}
+        {{ with $newer }}<a class="next" href="{{ .RelPermalink }}"><small>{{ T "newerPost" }}</small>{{ .Title }}</a>{{ else }}<span></span>{{ end }}
+      </nav>
+      {{ partial "series-more.html" (dict "exclude" "" "title" (T "readSeries")) }}
+    {{- end }}
+  </footer>
+</article>

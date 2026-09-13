@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="{{ .Language.Locale }}" data-theme="dark">
+<head>
+  {{ partial "head.html" . }}
+</head>
+<body>
+  <a class="skip-link" href="#main">{{ .Title }}</a>
+  <div id="sidebar-backdrop" hidden></div>
+
+  {{ partial "sidebar.html" . }}
+
+  <div id="page">
+    {{ partial "topbar.html" . }}
+    <main id="main" class="{{ block "main-class" . }}{{ end }}">
+      {{ block "main" . }}{{ end }}
+    </main>
+    {{ partial "footer.html" . }}
+  </div>
+
+  {{ partial "search.html" . }}
+  {{ partial "analytics.html" . }}
+  {{- $js := resources.Get "js/main.js" | minify | fingerprint -}}
+  <script src="{{ $js.RelPermalink }}" integrity="{{ $js.Data.Integrity }}" defer></script>
+</body>
+</html>

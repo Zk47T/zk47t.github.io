@@ -1,0 +1,5 @@
+{{- /* Lấy chuỗi theo ngôn ngữ từ data/authors.yaml: field có thể là string hoặc map {vi: …, en: …}.
+       Dùng: partial "author-field.html" (dict "v" $a.motto "lang" .Language.Lang) */ -}}
+{{- $v := .v -}}{{- $out := "" -}}
+{{- if reflect.IsMap $v }}{{ $out = index $v .lang | default (index $v "vi") | default (index $v "en") }}{{ else if $v }}{{ $out = $v }}{{ end -}}
+{{- return $out -}}

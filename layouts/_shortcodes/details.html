@@ -1,0 +1,6 @@
+{{- $title := .Get "title" | default "Details" -}}
+{{- $closed := .Get "closed" -}}
+<details class="md-details"{{ if ne $closed "true" }} open{{ end }}>
+  <summary>{{ $title | markdownify }}</summary>
+  <div class="md-details-body">{{ .Inner | markdownify }}</div>
+</details>

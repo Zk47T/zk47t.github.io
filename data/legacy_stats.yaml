@@ -1,0 +1,31 @@
+# Số liệu Jetpack Stats của blog WordPress cũ (embeddedlinux.blog), chép từ màn hình Stats ngày 2026-09-13.
+# Lưu lại trước khi tắt WordPress để sau này hiển thị "từ 2024" hoặc so sánh với số liệu mới.
+source: "Jetpack Stats (WordPress.com)"
+captured: 2026-09-13
+all_time:
+  views: 23995
+  visitors: 6803
+  posts: 58
+  comments: 7
+  best_weekday: "Thursday (18% views)"
+  best_hour: "23:00 (8% views)"
+  peak_day: { date: 2025-09-10, views: 618 }
+year_2026:
+  posts: 20
+  words: 19200
+  likes: 0
+  comments: 5
+last_7_days:              # 2026-09-07 .. 2026-09-13
+  views: 325
+  visitors: 111
+  top_pages:
+    - { title: "Trang chủ", views: 61 }
+    - { title: "Beaglebone Black", views: 42 }
+    - { title: "[Yocto-BBB] 1. Build Beaglebone Black Image Bằng Yocto Project", views: 29 }
+    - { title: "[Yocto-Lichee] 2. Làm quen, flash image tới thẻ nhớ board Lichee Pi Nano", views: 23 }
+    - { title: "[BBB-Linux] 1. Beaglebone Black Boot Process Overview", views: 23 }
+  referrers:
+    - { source: "Facebook", views: 30 }
+    - { source: "Search engines", views: 24 }
+    - { source: "youtube.com", views: 4 }
+    - { source: "LinkedIn", views: 1 }

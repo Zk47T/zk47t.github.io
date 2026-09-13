@@ -1,0 +1,50 @@
+{{ define "main-class" }}list{{ end }}
+{{ define "main" }}
+  <header class="page-head">
+    <h1>{{ .Title }}</h1>
+    {{ with .Description }}<p class="lead">{{ . }}</p>{{ end }}
+  </header>
+  {{ .Content }}
+  {{- $terms := .Data.Terms.ByCount -}}
+  {{- $fallback := false -}}
+  {{- if eq (len $terms) 0 }}
+    {{- range hugo.Sites }}{{ if eq .Language.Lang "vi" }}{{ $terms = (index .Taxonomies $.Data.Plural).ByCount }}{{ end }}{{ end -}}
+    {{- $fallback = true -}}
+  {{- end -}}
+  {{- if $fallback }}<p class="note">{{ T "translatedFallback" }}</p>{{ end }}
+  {{- if eq .Data.Plural "boards" }}
+    <div class="board-grid">
+      {{- range $terms }}
+        {{- $p := .Page -}}
+        {{- /* fallback ngôn ngữ: dùng bản dịch của term nếu có (title/mô tả/link đúng ngôn ngữ) */ -}}
+        {{- if ne $p.Language.Lang $.Language.Lang }}{{ range $p.Translations }}{{ if eq .Language.Lang $.Language.Lang }}{{ $p = . }}{{ end }}{{ end }}{{ end -}}
+        {{- /* ảnh: image của board, không có thì thumbnail bài mới nhất */ -}}
+        {{- $img := $p.Params.image -}}{{- if not $img }}{{ with index .Pages.ByDate.Reverse 0 }}{{ $img = .Params.image }}{{ end }}{{ end -}}
+        <a class="board-card" href="{{ $p.RelPermalink }}">
+          <div class="board-img">{{ with $img }}<img src="{{ . }}" alt="" loading="lazy">{{ else }}{{ partial "icons.html" "board" }}{{ end }}</div>
+          <div class="board-body">
+            <h3>{{ $p.Title }}</h3>
+            <p>{{ $p.Description }}</p>
+            <span class="count">{{ .Count }} {{ T "posts" }}</span>
+          </div>
+        </a>
+      {{- end }}
+    </div>
+    {{- /* ghi công ảnh board (CC) */ -}}
+    {{- $credits := slice -}}{{- range site.Params.hero_boards }}{{ $b := . }}{{ with .credit }}{{ $credits = $credits | append (printf "%s: %s" $b.name .) }}{{ end }}{{ end -}}
+    {{- range site.Params.image_credits }}{{ $credits = $credits | append . }}{{ end -}}
+    {{- with $credits }}<p class="note credits">{{ T "imageCredits" }}: {{ delimit . " · " }}</p>{{ end }}
+  {{- else if eq .Data.Plural "series" }}
+    <div class="series-grid">
+      {{- range $terms }}{{ partial "series-card.html" (dict "page" .Page "count" .Count) }}{{ end }}
+    </div>
+  {{- else if eq .Data.Plural "authors" }}
+    <div class="author-grid">
+      {{- range $terms }}{{ partial "author-card.html" (dict "id" .Page.Data.Term "page" $ "variant" "side") }}{{ end }}
+    </div>
+  {{- else }}
+    <ul class="term-cloud">
+      {{- range $terms }}<li><a href="{{ .Page.RelPermalink }}">{{ .Page.Title }}<span class="count">{{ .Count }}</span></a></li>{{ end }}
+    </ul>
+  {{- end }}
+{{ end }}

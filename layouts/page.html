@@ -1,0 +1,18 @@
+{{ define "main-class" }}page-single{{ end }}
+{{ define "main" }}
+  {{- /* `content_from: <lang>`: dùng nội dung (và TOC, link sửa) của bản dịch ngôn ngữ đó, để một trang viết 1 lần hiện ở cả 2 ngôn ngữ */ -}}
+  {{- $src := . -}}
+  {{- with .Params.content_from }}{{ $lang := . }}{{ range $.Translations }}{{ if eq .Language.Lang $lang }}{{ $src = . }}{{ end }}{{ end }}{{ end -}}
+  <div class="post-layout">
+    <article class="post plain" data-pagefind-body>
+      <header class="post-head"><h1 class="post-title">{{ .Title }}</h1></header>
+      <div class="post-content">{{ $src.Content }}</div>
+      <footer class="post-foot" data-pagefind-ignore><div class="foot-links"><a href="{{ site.Params.edit_base }}/{{ $src.File.Path }}" target="_blank" rel="noopener">{{ partial "icons.html" "edit" }} {{ T "editOnGitHub" }}</a></div></footer>
+    </article>
+    <aside class="toc-column">
+      {{- if $src.TableOfContents | and (gt (len $src.TableOfContents) 60) }}
+      <nav class="toc" id="toc"><p class="toc-title">{{ T "onThisPage" }}</p>{{ $src.TableOfContents }}</nav>
+      {{- end }}
+    </aside>
+  </div>
+{{ end }}

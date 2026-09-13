@@ -1,0 +1,4 @@
+{{- /* Script thống kê: chỉ bản production và khi đã cấu hình mã (params.analytics.goatcounter) */ -}}
+{{- with site.Params.analytics.goatcounter }}{{ if hugo.IsProduction }}
+<script data-goatcounter="https://{{ . }}.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+{{- end }}{{ end -}}

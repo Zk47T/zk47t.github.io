@@ -1,0 +1,7 @@
+{{- $lang := .Type | default "text" -}}
+{{- /* bash/shell: tô màu kiểu terminal Ubuntu (partial term-highlight); ngôn ngữ khác: Chroma */ -}}
+{{- $isShell := in (slice "bash" "sh" "shell" "zsh" "console" "terminal" "shell-session") $lang -}}
+<div class="code-block{{ if $isShell }} is-term{{ end }}" translate="no" data-lang="{{ $lang }}" data-pagefind-weight="0.4">
+  <div class="code-head" data-pagefind-ignore><span class="lang">{{ $lang }}</span><button type="button" class="copy-btn" aria-label="{{ T "copy" }}" data-copied="{{ T "copied" }}">{{ partial "icons.html" "copy" }}<span>{{ T "copy" }}</span></button></div>
+  {{- if $isShell }}{{ partial "term-highlight.html" .Inner }}{{ else }}{{ (transform.HighlightCodeBlock .).Wrapped }}{{ end -}}
+</div>

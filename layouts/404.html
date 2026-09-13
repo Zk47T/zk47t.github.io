@@ -1,0 +1,5 @@
+{{ define "main-class" }}notfound{{ end }}
+{{ define "main" }}
+  <div class="post-layout"><article class="post plain"><header class="post-head"><h1 class="post-title">404</h1></header>
+  <div class="post-content"><p>{{ if eq .Language.Lang "vi" }}Không tìm thấy trang này.{{ else }}Page not found.{{ end }} <a href="{{ site.Home.RelPermalink }}">{{ site.Title }}</a></p></div></article></div>
+{{ end }}

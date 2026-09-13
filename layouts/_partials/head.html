@@ -1,0 +1,79 @@
+{{- $title := .Title -}}
+{{- if .IsHome }}{{ $title = site.Title }}{{ else }}{{ $title = printf "%s · %s" .Title site.Title }}{{ end -}}
+{{- $desc := .Description | default .Summary | default site.Params.description | plainify | truncate 160 -}}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ $title }}</title>
+<meta name="description" content="{{ $desc }}">
+<link rel="canonical" href="{{ .Permalink }}">
+<link rel="icon" href="/img/logo.jpg">
+<meta name="theme-color" content="#111111">
+{{- /* hreflang cho từng bản dịch */ -}}
+{{- if .IsTranslated }}
+{{- range .AllTranslations }}
+<link rel="alternate" hreflang="{{ .Language.Lang }}" href="{{ .Permalink }}">
+{{- end }}
+<link rel="alternate" hreflang="x-default" href="{{ (index .AllTranslations 0).Permalink }}">
+{{- end }}
+{{- with .OutputFormats.Get "rss" }}
+<link rel="alternate" type="application/rss+xml" title="{{ site.Title }}" href="{{ .Permalink }}">
+{{- end }}
+{{- /* Open Graph / Twitter */ -}}
+<meta property="og:site_name" content="{{ site.Title }}">
+<meta property="og:title" content="{{ .Title }}">
+<meta property="og:description" content="{{ $desc }}">
+<meta property="og:url" content="{{ .Permalink }}">
+<meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
+<meta property="og:locale" content="{{ .Language.Lang }}">
+{{- with .Params.image }}
+<meta property="og:image" content="{{ . | absURL }}">
+<meta name="twitter:card" content="summary_large_image">
+{{- else }}
+<meta property="og:image" content="{{ "/img/logo.jpg" | absURL }}">
+<meta name="twitter:card" content="summary">
+{{- end }}
+{{- if .IsPage }}
+<meta property="article:published_time" content="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">
+<meta property="article:modified_time" content="{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" }}">
+{{- end }}
+{{- /* Fonts: Space Mono cho nav / meta (có subset vietnamese) */ -}}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap">
+{{- /* CSS */ -}}
+{{- $css := slice (resources.Get "css/main.css") (resources.Get "css/chroma.css") | resources.Concat "css/site.css" | minify | fingerprint }}
+<link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
+<script>
+  // Áp theme trước khi vẽ để không nháy. Mặc định: tối (giống blog cũ).
+  (function(){try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();
+</script>
+{{- /* JSON-LD WebSite (trang chủ): tên mới + tên cũ (alternateName) để giữ brand "Embedded Linux A-Z" */ -}}
+{{- if .IsHome }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": {{ site.Title }},
+  {{ with site.Params.alt_name }}"alternateName": {{ . }},{{ end }}
+  "url": {{ site.Home.Permalink }},
+  "inLanguage": {{ .Language.Lang }},
+  "author": {"@type": "Person", "name": {{ site.Params.author }}}
+}
+</script>
+{{- end }}
+{{- /* JSON-LD cho bài viết */ -}}
+{{- if and .IsPage (eq .Section "posts") }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": {{ .Title }},
+  "datePublished": {{ .Date.Format "2006-01-02T15:04:05Z07:00" }},
+  "dateModified": {{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" }},
+  "author": [{{ range $i, $id := .Params.authors | default (slice site.Params.default_author) }}{{ if $i }}, {{ end }}{{ $a := index hugo.Data.authors $id }}{"@type": "Person", "name": {{ with $a }}{{ .name }}{{ else }}{{ $id }}{{ end }}{{ with site.GetPage (printf "/authors/%s" $id) }}, "url": {{ .Permalink }}{{ end }}}{{ end }}],
+  "image": {{ (.Params.image | default "/img/logo.jpg") | absURL }},
+  "mainEntityOfPage": {{ .Permalink }},
+  "inLanguage": {{ .Language.Lang }}
+}
+</script>
+{{- end }}

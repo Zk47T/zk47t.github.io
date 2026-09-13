@@ -1,0 +1,42 @@
+{{- /* Card tác giả - chỉ logo/hình vẽ + tên, KHÔNG dùng ảnh chân dung.
+       Dùng: partial "author-card.html" (dict "id" "tien" "page" . "variant" "compact|side|hero")
+         compact: dưới TOC trong bài; side: cột phải trang chủ; hero: đầu trang tác giả */ -}}
+{{- $id := .id -}}{{- $page := .page -}}{{- $variant := .variant | default "side" -}}
+{{- $lang := $page.Language.Lang -}}
+{{- $a := index hugo.Data.authors $id -}}
+{{- if $a }}
+  {{- $term := site.GetPage (printf "/authors/%s" $id) -}}
+  {{- /* số bài: gộp mọi ngôn ngữ, bản dịch của cùng một bài chỉ tính 1 */ -}}
+  {{- $keys := slice -}}
+  {{- range hugo.Sites }}{{ with index .Taxonomies.authors $id }}{{ range .Pages }}{{ $keys = $keys | append .TranslationKey }}{{ end }}{{ end }}{{ end -}}
+  {{- $count := len ($keys | uniq) -}}
+  {{- $url := "" -}}{{- with $term }}{{ $url = .RelPermalink }}{{ else }}{{ with $a.page }}{{ $url = relLangURL . }}{{ end }}{{ end -}}
+  {{- $role := partial "author-field.html" (dict "v" $a.role "lang" $lang) -}}
+  {{- $motto := partial "author-field.html" (dict "v" $a.motto "lang" $lang) -}}
+  {{- $quote := partial "author-field.html" (dict "v" $a.quote "lang" $lang) -}}
+  <div class="author-card {{ $variant }}" data-author="{{ $id }}">
+    <div class="author-top">
+      {{- if $url }}<a class="author-avatar" href="{{ $url }}" aria-hidden="true" tabindex="-1">{{ else }}<span class="author-avatar">{{ end -}}
+        <img src="{{ $a.image | default site.Params.logo }}" alt="" width="56" height="56" loading="lazy">
+      {{- if $url }}</a>{{ else }}</span>{{ end }}
+      <div class="author-id">
+        {{ if $url }}<a class="author-name" href="{{ $url }}">{{ partial "author-field.html" (dict "v" $a.name "lang" $lang) }}</a>{{ else }}<span class="author-name">{{ partial "author-field.html" (dict "v" $a.name "lang" $lang) }}</span>{{ end }}
+        {{ with $role }}<div class="author-role">{{ . }}</div>{{ end }}
+        {{ if $count }}<div class="author-count">{{ $count }} {{ T "posts" }}</div>{{ end }}
+      </div>
+    </div>
+    {{ with $motto }}<p class="author-motto">{{ . }}</p>{{ end }}
+    {{ if $a.photo }}
+      {{- $dim := "" -}}{{- with imageConfig (printf "static%s" $a.photo) }}{{ $dim = printf ` width="%d" height="%d"` .Width .Height }}{{ end -}}
+      <img class="author-photo" src="{{ $a.photo }}"{{ $dim | safeHTMLAttr }} alt="{{ partial "author-field.html" (dict "v" $a.name "lang" $lang) }}" loading="lazy" decoding="async">
+    {{- end }}
+    {{ if and $a.email (eq $variant "hero") }}<p class="author-email">{{ partial "icons.html" "mail" }} {{ T "workEmail" }}: <a href="mailto:{{ $a.email }}">{{ $a.email }}</a></p>{{ end }}
+    {{ if and $quote (ne $variant "compact") }}<blockquote class="author-quote">{{ $quote }}</blockquote>{{ end }}
+    <div class="author-links">
+      {{- range $a.links }}<a href="{{ .url }}" target="_blank" rel="noopener" aria-label="{{ .name }}" title="{{ .name }}">{{ partial "icons.html" .icon }}</a>{{ end -}}
+      {{- if and $a.email (ne $variant "hero") }}<a href="mailto:{{ $a.email }}" aria-label="{{ T "workEmail" }}" title="{{ T "workEmail" }}: {{ $a.email }}">{{ partial "icons.html" "mail" }}</a>{{ end -}}
+      {{- with $a.page }}<a class="txt" href="{{ relLangURL . }}">{{ T "aboutAuthor" }}</a>{{ end -}}
+      {{- if and $term (ne $variant "hero") }}<a class="txt" href="{{ $term.RelPermalink }}">{{ T "allPostsBy" }} →</a>{{ end -}}
+    </div>
+  </div>
+{{- end }}

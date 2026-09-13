@@ -1,0 +1,51 @@
+{{ define "main-class" }}home{{ end }}
+{{ define "main" }}
+  {{- /* Dải board: thấp, bấm vào -> trang board */ -}}
+  {{- $boardsPage := site.GetPage "/boards" -}}
+  {{- $items := slice -}}
+  {{- range site.Params.hero_boards }}
+    {{- $term := site.GetPage (printf "/boards/%s" .board) -}}
+    {{- $has := fileExists (printf "static%s" .image) -}}
+    {{- $items = $items | append (dict "name" .name "image" .image "has" $has "slug" (.board | urlize) "term" $term "href" (cond (ne $term nil) $term.RelPermalink (cond (ne $boardsPage nil) $boardsPage.RelPermalink "#"))) -}}
+  {{- end -}}
+  {{- $marquee := and site.Params.hero_marquee (gt (len $items) 4) -}}
+  <section class="hero-boards{{ if $marquee }} marquee{{ end }}" aria-label="{{ T "boards" }}"{{ if $marquee }} style="--n: {{ len $items }}"{{ end }}>
+    <div class="hero-track">
+      {{- range $copy := cond $marquee (slice 0 1) (slice 0) }}
+        {{- range $items }}
+          <a class="hero-board" href="{{ .href }}" data-preview="{{ .slug }}"{{ if $copy }} aria-hidden="true" tabindex="-1"{{ end }}>
+            {{- if .has }}<img src="{{ .image }}" alt="{{ .name }}" loading="{{ if $copy }}lazy{{ else }}eager{{ end }}">
+            {{- else }}<span class="hero-placeholder">{{ partial "icons.html" "board" }}</span>{{ end }}
+            <span>{{ .name }}</span>
+          </a>
+        {{- end }}
+      {{- end }}
+    </div>
+  </section>
+  {{- /* nội dung khung xem trước khi rê chuột vào board (JS dựng popup từ các template này; ảnh nguồn CC ghi ở /boards/) */ -}}
+  {{- range $items }}{{ partial "board-preview.html" (dict "item" . "page" $) }}{{ end }}
+
+  <div class="home-layout">
+  <div class="home-main">
+  {{- $posts := where site.RegularPages "Section" "posts" -}}
+  {{- $fallback := false -}}
+  {{- if eq (len $posts) 0 }}
+    {{- range hugo.Sites }}{{ if eq .Language.Lang "vi" }}{{ $posts = where .RegularPages "Section" "posts" }}{{ end }}{{ end -}}
+    {{- $fallback = true -}}
+  {{- end -}}
+  {{- $pag := .Paginate $posts.ByDate.Reverse -}}
+
+  <section class="post-grid-wrap">
+    <div class="section-head">
+      <h2>{{ T "latestPosts" }}{{ if $fallback }} <small>({{ T "translatedFallback" }})</small>{{ end }}</h2>
+      <a class="more" href="{{ (site.GetPage "/posts").RelPermalink }}">{{ T "allPosts" }} →</a>
+    </div>
+    <div class="post-grid">
+      {{- range $pag.Pages }}{{ partial "card.html" . }}{{ end }}
+    </div>
+    {{ partial "paginator.html" $pag }}
+  </section>
+  </div>
+  {{ partial "home-side.html" . }}
+  </div>
+{{ end }}

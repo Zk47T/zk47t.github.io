@@ -1,0 +1,50 @@
+{{ define "main-class" }}list board-page{{ end }}
+{{ define "main" }}
+  {{- /* ngôn ngữ chưa có bài -> hiện bài tiếng Việt của board này */ -}}
+  {{- $pages := .Pages -}}{{- $fallback := false -}}
+  {{- if eq (len $pages) 0 }}
+    {{- range hugo.Sites }}{{ if eq .Language.Lang "vi" }}{{ with index .Taxonomies.boards $.Data.Term }}{{ $pages = .Pages }}{{ end }}{{ end }}{{ end -}}
+    {{- $fallback = true -}}
+  {{- end -}}
+  {{- $img := .Params.image -}}{{- if not $img }}{{ with index $pages.ByDate.Reverse 0 }}{{ $img = .Params.image }}{{ end }}{{ end -}}
+  <header class="page-head board-head">
+    {{ with $img }}<img class="board-hero" src="{{ . }}" alt="{{ $.Title }}">{{ end }}
+    <div>
+      <p class="kicker">{{ T "boards" }}</p>
+      <h1>{{ .Title }}</h1>
+      <p class="lead">{{ .Description }}</p>
+      <p class="meta">{{ len $pages }} {{ T "posts" }}{{ if and $fallback (gt (len $pages) 0) }} · {{ T "translatedFallback" }}{{ end }}</p>
+    </div>
+  </header>
+  {{ .Content }}
+  {{- /* gom bài theo series, giữ thứ tự */ -}}
+  {{- $groups := dict -}}{{- $order := slice -}}{{- $loose := slice -}}
+  {{- range $pages.ByDate }}
+    {{- $p := . -}}
+    {{- with .Params.series }}
+      {{- $s := index . 0 -}}
+      {{- if not (isset $groups $s) }}{{ $order = $order | append $s }}{{ $groups = merge $groups (dict $s slice) }}{{ end -}}
+      {{- $groups = merge $groups (dict $s (append $p (index $groups $s))) -}}
+    {{- else }}{{ $loose = $loose | append $p }}{{ end -}}
+  {{- end }}
+  <h2 class="section-title">{{ T "seriesOnBoard" }}</h2>
+  {{- range $order }}
+    {{- $s := . -}}
+    {{- $pages := sort (sort (index $groups $s) "Date" "asc") "Params.series_order" "asc" -}}
+    {{- $term := site.GetPage (printf "/series/%s" ($s | urlize)) -}}
+    <details class="series-group" open>
+      <summary>
+        {{- with (index $pages 0).Params.image }}<img src="{{ . }}" alt="" loading="lazy">{{ end -}}
+        <span class="s-title">{{ $s }}</span><span class="count">{{ len $pages }} {{ T "posts" }}</span>
+        {{- with $term }}<a class="s-link" href="{{ .RelPermalink }}">{{ T "seriesLabel" }} →</a>{{ end -}}
+      </summary>
+      <ol class="series-list compact">
+        {{- range $pages }}<li><span class="n">{{ if isset .Params "series_order" }}{{ .Params.series_order }}{{ else }}·{{ end }}</span><a href="{{ .RelPermalink }}">{{ .Title }}</a><time>{{ .Date.Format "02/01/2006" }}</time></li>{{ end }}
+      </ol>
+    </details>
+  {{- end }}
+  {{- with $loose }}
+    <h2 class="section-title">{{ T "postsIn" }}</h2>
+    <div class="post-grid">{{ range . }}{{ partial "card.html" . }}{{ end }}</div>
+  {{- end }}
+{{ end }}

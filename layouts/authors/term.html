@@ -1,0 +1,19 @@
+{{ define "main-class" }}list author-page{{ end }}
+{{ define "main" }}
+  {{- $id := .Data.Term -}}
+  <header class="page-head author-head">
+    <p class="kicker">{{ T "author" }}</p>
+    {{ partial "author-card.html" (dict "id" $id "page" . "variant" "hero") }}
+  </header>
+  {{ .Content }}
+  {{- /* ngôn ngữ chưa có bài -> hiện bài tiếng Việt (giống section page) */ -}}
+  {{- $pages := .Pages -}}{{- $fallback := false -}}
+  {{- if eq (len $pages) 0 }}
+    {{- range hugo.Sites }}{{ if eq .Language.Lang "vi" }}{{ with index .Taxonomies.authors $id }}{{ $pages = .Pages }}{{ end }}{{ end }}{{ end -}}
+    {{- $fallback = true -}}
+  {{- end -}}
+  {{- $pag := .Paginate $pages.ByDate.Reverse -}}
+  <div class="section-head"><h2>{{ T "postsBy" }} {{ .Title }}{{ if $fallback }} <small>({{ T "translatedFallback" }})</small>{{ end }}</h2></div>
+  <div class="post-grid">{{ range $pag.Pages }}{{ partial "card.html" . }}{{ end }}</div>
+  {{ partial "paginator.html" $pag }}
+{{ end }}

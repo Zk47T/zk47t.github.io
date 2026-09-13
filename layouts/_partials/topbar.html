@@ -1,0 +1,39 @@
+{{- /* Thanh trên: hamburger (mobile), breadcrumb, search, đổi ngôn ngữ, sáng/tối */ -}}
+<header id="topbar">
+  <button id="sidebar-toggle" type="button" aria-label="{{ T "toggleMenu" }}" aria-controls="sidebar" aria-expanded="false">{{ partial "icons.html" "menu" }}</button>
+
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="{{ site.Home.RelPermalink }}">{{ site.Title }}</a>
+    {{- if not .IsHome }}
+      {{- $sec := "" -}}
+      {{- if eq .Section "posts" }}{{ $sec = site.GetPage "/posts" }}
+      {{- else if eq .Kind "term" }}{{ $sec = site.GetPage (printf "/%s" .Data.Plural) }}{{ end -}}
+      {{- with $sec }}{{ if ne .RelPermalink $.RelPermalink }}<span class="sep">/</span><a href="{{ .RelPermalink }}">{{ .Title }}</a>{{ end }}{{ end -}}
+      <span class="sep">/</span><span class="current">{{ .Title }}</span>
+    {{- end }}
+  </nav>
+
+  <div class="topbar-actions">
+    <button id="search-open" type="button" class="search-btn" aria-label="{{ T "search" }}">
+      {{ partial "icons.html" "search" }}<span>{{ T "search" }}</span><kbd>Ctrl K</kbd>
+    </button>
+
+    <div class="lang-switch" aria-label="{{ T "language" }}">
+      {{- $cur := .Language.Lang -}}
+      {{- range hugo.Sites }}
+        {{- $lang := .Language.Lang -}}
+        {{- $label := .Language.Label -}}
+        {{- $href := .Home.RelPermalink -}}
+        {{- if eq $lang $cur }}{{ $href = $.RelPermalink }}
+        {{- else }}
+          {{- range $.Translations }}{{ if eq .Language.Lang $lang }}{{ $href = .RelPermalink }}{{ end }}{{ end -}}
+        {{- end -}}
+        <a href="{{ $href }}" hreflang="{{ $lang }}" class="{{ if eq $lang $cur }}active{{ end }}" title="{{ $label }}">{{ upper $lang }}</a>
+      {{- end }}
+    </div>
+
+    <button id="theme-toggle" type="button" aria-label="{{ T "toggleTheme" }}" title="{{ T "toggleTheme" }}">
+      <span class="ico-sun">{{ partial "icons.html" "sun" }}</span><span class="ico-moon">{{ partial "icons.html" "moon" }}</span>
+    </button>
+  </div>
+</header>

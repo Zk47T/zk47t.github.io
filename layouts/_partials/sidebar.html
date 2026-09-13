@@ -1,0 +1,46 @@
+{{- /* Sidebar trái kiểu Chirpy: avatar, tên site, tagline, menu dọc, social ở đáy */ -}}
+{{- $page := . -}}
+<aside id="sidebar" aria-label="Sidebar">
+  <div class="profile">
+    <a class="avatar" href="{{ site.Home.RelPermalink }}" aria-label="{{ site.Title }}">
+      <img src="{{ site.Params.avatar }}" alt="" width="112" height="112">
+    </a>
+    <a class="site-title" href="{{ site.Home.RelPermalink }}">{{ site.Title }}</a>
+    <p class="site-tagline">{{ site.Params.tagline }}</p>
+  </div>
+
+  <nav class="side-nav" aria-label="Main">
+    <ul>
+      {{- range site.Menus.main }}
+        {{- $active := or ($page.IsMenuCurrent "main" .) ($page.HasMenuCurrent "main" .) -}}
+        {{- if and (not $active) .PageRef (ne .PageRef "/") }}{{ $active = hasPrefix $page.RelPermalink (relLangURL .PageRef) }}{{ end -}}
+        {{- if and (not $active) (eq .Identifier "posts") (eq $page.Section "posts") }}{{ $active = true }}{{ end -}}
+        {{- if and (not $active) (eq .Identifier "boards") (eq $page.Type "boards") }}{{ $active = true }}{{ end -}}
+        {{- if and (not $active) (eq .Identifier "series") (eq $page.Type "series") }}{{ $active = true }}{{ end -}}
+        {{- $dropdown := .Params.dropdown -}}
+        <li class="nav-item{{ if $active }} active{{ end }}{{ if $dropdown }} has-children{{ end }}">
+          <a class="nav-link{{ if .Params.external }} external{{ end }}" href="{{ .URL }}"{{ if .Params.external }} target="_blank" rel="noopener"{{ end }}>
+            <span class="ico">{{ partial "icons.html" .Params.icon }}</span>
+            <span class="label">{{ .Name }}</span>
+            {{- if .Params.external }}<span class="ext" aria-hidden="true">{{ partial "icons.html" "external" }}</span>{{ end }}
+            {{- if $dropdown }}<button class="caret" type="button" aria-label="{{ T "toggleMenu" }}" aria-expanded="{{ if $active }}true{{ else }}false{{ end }}">{{ partial "icons.html" "chevron" }}</button>{{ end -}}
+          </a>
+          {{- with $dropdown }}
+            {{- $terms := (index site.Taxonomies .).ByCount }}
+            <ul class="sub-nav"{{ if not $active }} hidden{{ end }}>
+              {{- range $terms }}
+                <li{{ if eq .Page.RelPermalink $page.RelPermalink }} class="active"{{ end }}><a href="{{ .Page.RelPermalink }}">{{ .Page.Title }}<span class="count">{{ .Count }}</span></a></li>
+              {{- end }}
+            </ul>
+          {{- end }}
+        </li>
+      {{- end }}
+    </ul>
+  </nav>
+
+  <div class="sidebar-bottom">
+    {{- range site.Params.social }}
+      <a href="{{ .url }}" target="_blank" rel="noopener" aria-label="{{ .name }}" title="{{ .name }}">{{ partial "icons.html" .icon }}</a>
+    {{- end }}
+  </div>
+</aside>

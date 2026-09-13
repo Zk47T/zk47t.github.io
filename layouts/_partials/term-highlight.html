@@ -1,0 +1,51 @@
+{{- /* Tô màu code block bash/shell kiểu terminal Ubuntu (thay cho Chroma, vốn chỉ tô string/biến).
+       Ngữ cảnh: chuỗi code thô. Trả về HTML <pre class="term"><code>…</code></pre>.
+
+       Từng dòng được phân loại:
+         prompt   user@host:path$ cmd   → user xanh lá, path xanh dương, cmd tô token
+         comment  # …                   → xám nghiêng
+         output   (block có prompt, dòng không phải prompt) → mờ, chỉ link URL
+         command  còn lại (block không có prompt) → tô token: tên lệnh, option, string, biến, path, URL, toán tử
+       Tên lệnh chỉ tô khi nằm trong danh sách $cmds (hoặc ./x, /path/x, *.sh, *.py) để không tô nhầm dòng output.
+
+       Kỹ thuật: < > & được đổi tạm sang ký tự private-use U+E000/E001/E002 để regex khỏi đụng thẻ HTML,
+       cuối cùng đổi lại thành &lt; &gt; &amp;. */ -}}
+{{- $cmds := "sudo|su|apt|apt-get|apt-cache|dpkg|snap|pip|pip3|python|python2|python3|perl|ruby|node|npm|npx|bash|sh|zsh|source|export|unset|alias|env|printenv|set|echo|printf|cat|less|more|head|tail|tee|grep|egrep|fgrep|rg|sed|awk|gawk|cut|sort|uniq|wc|tr|xargs|find|locate|which|whereis|file|stat|ls|ll|la|tree|cd|pwd|pushd|popd|mkdir|rmdir|rm|cp|mv|ln|touch|chmod|chown|chgrp|chroot|dd|sync|df|du|free|nproc|lscpu|lsblk|lsusb|lspci|lsmod|lshw|blkid|fdisk|sfdisk|parted|gparted|mkfs|mkfs.ext4|mkfs.vfat|mkfs.fat|mkswap|mount|umount|losetup|tune2fs|e2fsck|fsck|resize2fs|bmaptool|uuu|sdcard|dmesg|journalctl|systemctl|service|reboot|poweroff|halt|shutdown|init|kill|killall|pkill|ps|top|htop|nohup|sleep|time|date|watch|uname|hostname|hostnamectl|whoami|id|useradd|usermod|userdel|passwd|groupadd|mkpasswd|ssh|ssh-keygen|scp|sftp|rsync|wget|curl|ping|ping6|ip|ifconfig|iw|iwconfig|iwlist|route|netstat|ss|nc|netcat|telnet|tftp|nmcli|nmtui|wpa_supplicant|wpa_passphrase|wpa_cli|dhcpcd|dhclient|udhcpc|arp|traceroute|tcpdump|git|repo|gh|patch|diff|tar|zip|unzip|gzip|gunzip|xz|unxz|bzip2|7z|md5sum|sha1sum|sha256sum|xxd|hexdump|od|strings|make|cmake|ninja|meson|autoreconf|configure|gcc|g\\+\\+|cc|c\\+\\+|clang|clang\\+\\+|as|ld|ar|nm|objdump|objcopy|readelf|strip|size|gdb|gdb-multiarch|gdbserver|lldb|strace|ltrace|valgrind|perf|ftrace|trace-cmd|dtc|fdtdump|fdtget|mkimage|mkenvimage|dumpimage|u-boot|bitbake|bitbake-layers|bitbake-getvar|bitbake-diffsigs|devtool|recipetool|oe-pkgdata-util|oe-depends-dot|runqemu|yocto-check-layer|kas|buildroot|qemu-system-arm|qemu-system-aarch64|qemu-system-riscv64|qemu-arm|qemu-aarch64|docker|docker-compose|podman|adb|fastboot|repo|lunch|m|mm|mmm|croot|minicom|picocom|screen|tio|cu|tmux|vim|vi|nano|gedit|code|evtest|gpioset|gpioget|gpioinfo|gpiodetect|gpiomon|i2cdetect|i2cget|i2cset|i2cdump|spidev_test|devmem|devmem2|memtool|modprobe|insmod|rmmod|depmod|modinfo|udevadm|setenv|printenv|saveenv|bootz|booti|bootm|load|fatload|ext4load|tftpboot|mmc|usb|nand|sf|md|mw|go|run|weston|weston-launch|pactl|aplay|arecord|amixer|alsamixer|speaker-test|ffmpeg|gst-launch-1.0|v4l2-ctl|fbset|xrandr|setfont|loadkeys|locale-gen|dpkg-reconfigure|update-alternatives|ldconfig|ldd|pkg-config|flashcp|nandwrite|mtd_debug|ubiattach|ubimkvol|exec|exit|return|test|true|false|read|shift|eval|wait|trap|type|hash|command|builtin|clear|reset|history|man|info|help|tldr|crontab|at|bc|expr|seq|yes|basename|dirname|realpath|readlink|mktemp|install|getconf|ulimit|umask|nice|renice|iptables|ufw|dnf|yum|pacman|brew|apk|opkg|rpm|ipk|smart|break|continue|swapoff|swapon|partprobe|wipefs|sgdisk|gdisk|blockdev|hdparm|cryptsetup|lsof|fuser|nmap|dig|nslookup|host|whois|ncdu|jq|yq|column|paste|join|comm|split|rev|fold|nl|tac|shuf|timeout|flock|logger|dmidecode|sensors|smartctl|ethtool|mii-tool|brctl|bridge|tc|vconfig|can-utils|candump|cansend|cangen|ip6tables|nft|socat|stty|setserial|picotool|openocd|st-flash|st-info|esptool|esptool.py|idf.py|west|pio|arduino-cli|avrdude|dfu-util|lsblk|apt-file|add-apt-repository|update-rc.d|chkconfig|ss|cmp|bsdtar|pv|rsync|sshfs|nfs|exportfs|showmount|mkfs.ubifs|ubinize|mkfs.jffs2|genext2fs|mksquashfs|unsquashfs|cpio|mkbootimg|unpack_bootimg|abootimg|simg2img|img2simg|lpunpack|lpmake|avbtool|fastboot|heimdall|odin|imx-usb-loader|uuu|mfgtool|sunxi-fel|xfel|sunxi-tools|rkdeveloptool|upgrade_tool|rkflashtool|nvflash|dfu-programmer|bossac|stm32flash|STM32_Programmer_CLI|cube-programmer" -}}
+{{- $raw := replace (replace (replace (replace . "\r" "") "&" "") "<" "") ">" "" -}}
+{{- $lines := split (strings.TrimSuffix "\n" $raw) "\n" -}}
+{{- $rePrompt := `^(?:([\w.-]+@[\w.-]+):([^\s$#]*)|\[([\w.-]+@[\w.-]+)\s+([^\]]*)\])\s?([$#])\s?(.*)$` -}}
+{{- $hasPrompt := false -}}
+{{- range $lines }}{{ if or (findRE $rePrompt .) (findRE `^\$\s` .) }}{{ $hasPrompt = true }}{{ end }}{{ end -}}
+{{- $cont := false -}}
+{{- $out := slice -}}
+{{- range $lines }}
+  {{- $l := . -}}
+  {{- $html := "" -}}
+  {{- $m := findRESubmatch $rePrompt $l 1 -}}
+  {{- $isCont := $cont -}}
+  {{- $cont = false -}}
+  {{- if $m }}
+    {{- $g := index $m 0 -}}
+    {{- $user := or (index $g 1) (index $g 3) -}}{{- $dir := or (index $g 2) (index $g 4) -}}
+    {{- $cmd := index $g 6 -}}
+    {{- $html = printf `<span class="t-p"><span class="t-pu">%s</span>%s<span class="t-pd">%s</span>%s</span> %s` $user (cond (index $g 1) ":" "") $dir (index $g 5) (partial "term-cmd.html" (dict "s" $cmd "cmds" $cmds)) -}}
+    {{- if hasSuffix (strings.TrimRight " " $cmd) "\\" }}{{ $cont = true }}{{ end -}}
+  {{- else if findRE `^\$\s` $l }}
+    {{- $cmd := strings.TrimLeft "$ \t" $l -}}
+    {{- $html = printf `<span class="t-p">$</span> %s` (partial "term-cmd.html" (dict "s" $cmd "cmds" $cmds)) -}}
+    {{- if hasSuffix (strings.TrimRight " " $cmd) "\\" }}{{ $cont = true }}{{ end -}}
+  {{- else if findRE `^\s*#` $l }}
+    {{- $html = printf `<span class="t-cm">%s</span>` $l -}}
+  {{- else if and $hasPrompt (not $isCont) }}
+    {{- $html = printf `<span class="t-out">%s</span>` (replaceRE `(https?://[^\s"'\x{E000}\x{E001}]+)` `<a class="t-u" href="$1" target="_blank" rel="noopener">$1</a>` $l) -}}
+  {{- else }}
+    {{- $html = partial "term-cmd.html" (dict "s" $l "cmds" $cmds "cont" $isCont) -}}
+    {{- if hasSuffix (strings.TrimRight " " $l) "\\" }}{{ $cont = true }}{{ end -}}
+  {{- end -}}
+  {{- /* bọc từng dòng như Chroma: không để dòng trống thật, vì trong shortcode {{% %}} markdown sẽ cắt HTML block ở dòng trống */ -}}
+  {{- $out = $out | append (printf `<span class="line">%s</span>` $html) -}}
+{{- end -}}
+{{- $joined := delimit $out "\n" -}}
+{{- $joined = replace (replace (replace $joined "" "&lt;") "" "&gt;") "" "&amp;" -}}
+{{- printf `<pre class="term"><code>%s
+</code></pre>` $joined | safeHTML -}}

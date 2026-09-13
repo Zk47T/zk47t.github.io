@@ -1,0 +1,11 @@
+{{- /* Card bài viết có thumbnail - dùng cho trang chủ / danh sách */ -}}
+<article class="card">
+  <a class="card-thumb" href="{{ .RelPermalink }}" aria-hidden="true" tabindex="-1">
+    {{- with .Params.image }}<img src="{{ . }}" alt="" loading="lazy">{{ else }}<div class="thumb-placeholder">{{ partial "icons.html" "board" }}</div>{{ end -}}
+  </a>
+  <div class="card-body">
+    {{- with .Params.categories }}<div class="cats">{{ range $i, $c := . }}{{ if $i }}, {{ end }}<a href="{{ (site.GetPage (printf "/categories/%s" ($c | urlize))).RelPermalink }}">{{ $c }}</a>{{ end }}</div>{{ end -}}
+    <h3 class="card-title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+    <div class="card-meta"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "02/01/2006" }}</time>{{ with .Params.series }} · <a href="{{ (site.GetPage (printf "/series/%s" ((index . 0) | urlize))).RelPermalink }}">{{ index . 0 }}</a>{{ end }}</div>
+  </div>
+</article>

@@ -1,0 +1,25 @@
+{{ define "main-class" }}post-page{{ end }}
+{{ define "main" }}
+  <div class="post-layout">
+    <div class="post-column" id="post-stream" data-infinite="{{ if site.Params.infinite_scroll }}1{{ else }}0{{ end }}">
+      {{ partial "post-article.html" . }}
+      <div id="infinite-status" class="infinite-status" hidden>
+        <span class="spinner"></span><span class="txt">{{ T "loadingNext" }}</span>
+      </div>
+    </div>
+    {{- /* Cột phải: TOC + tác giả. Khi infinite scroll sang bài khác, JS thay toàn bộ #post-side bằng của bài đó. */ -}}
+    <aside class="toc-column">
+      <div id="post-side" class="post-side">
+      {{- if .TableOfContents | and (gt (len .TableOfContents) 60) }}
+        <nav class="toc" id="toc" aria-label="{{ T "onThisPage" }}">
+          <p class="toc-title">{{ T "onThisPage" }}</p>
+          {{ .TableOfContents }}
+        </nav>
+      {{- end }}
+      {{- range .Params.authors | default (slice site.Params.default_author) }}
+        {{ partial "author-card.html" (dict "id" . "page" $ "variant" "compact") }}
+      {{- end }}
+      </div>
+    </aside>
+  </div>
+{{ end }}

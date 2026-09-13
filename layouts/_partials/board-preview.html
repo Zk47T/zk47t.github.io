@@ -1,0 +1,38 @@
+{{- /* <template> xem trước 1 board: số bài, series trên board, 4 bài mới nhất. Ngữ cảnh: dict item (từ home.html), page.
+       Ngôn ngữ chưa có bài -> lấy bài của bản VI. */ -}}
+{{- $it := .item -}}
+{{- $pages := slice -}}
+{{- with $it.term }}{{ $pages = .Pages }}{{ end -}}
+{{- if and $it.term (eq (len $pages) 0) }}
+  {{- range hugo.Sites }}{{ if eq .Language.Lang "vi" }}{{ with index .Taxonomies.boards $it.term.Data.Term }}{{ $pages = .Pages }}{{ end }}{{ end }}{{ end -}}
+{{- end -}}
+{{- $counts := dict -}}{{- $order := slice -}}
+{{- range $pages }}{{ with .Params.series }}{{ $s := index . 0 }}
+  {{- if not (isset $counts $s) }}{{ $order = $order | append $s }}{{ end -}}
+  {{- $counts = merge $counts (dict $s (add (index $counts $s | default 0) 1)) -}}
+{{- end }}{{ end -}}
+{{- $series := slice -}}
+{{- range $order }}{{ $series = $series | append (dict "name" . "count" (index $counts .)) }}{{ end -}}
+<template id="bp-{{ $it.slug }}">
+  <div class="bp">
+    <div class="bp-head"><strong>{{ $it.name }}</strong>{{ with $pages }}<span class="count">{{ len . }} {{ T "posts" }}</span>{{ end }}</div>
+    {{- if $pages }}
+      {{- with sort $series "count" "desc" }}
+      <div class="bp-series">
+        {{- range . }}{{ with site.GetPage (printf "/series/%s" (.name | urlize)) }}<a href="{{ .RelPermalink }}">{{ .Title }}</a>{{ end }}{{ end }}
+      </div>
+      {{- end }}
+      <ul class="bp-posts">
+        {{- range first 4 $pages.ByDate.Reverse }}
+        <li><a href="{{ .RelPermalink }}">
+          {{- with .Params.image }}<img src="{{ . }}" alt="" loading="lazy">{{ else }}<span class="bp-noimg"></span>{{ end -}}
+          <span class="bp-t">{{ .Title }}</span><time>{{ .Date.Format "02/01/2006" }}</time>
+        </a></li>
+        {{- end }}
+      </ul>
+      <a class="bp-all" href="{{ $it.href }}">{{ T "allPostsOnBoard" }} →</a>
+    {{- else }}
+      <p class="bp-empty">{{ T "boardNoPosts" }}</p>
+    {{- end }}
+  </div>
+</template>

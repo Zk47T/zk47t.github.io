@@ -1,0 +1,16 @@
+{{- /* Hộp tìm kiếm tự viết trên Pagefind JS API (/pagefind/pagefind.js, sinh bởi `npx pagefind --site public`).
+       Mỗi bài: thumbnail + tiêu đề + tối đa 2 mục (heading) có từ khoá. Pagefind tự chọn index theo <html lang>. */ -}}
+<div id="search-modal" hidden
+     data-t-results="{{ T "searchResults" }}" data-t-none="{{ T "searchNone" }}" data-t-more="{{ T "searchMore" }}"
+     data-t-loading="{{ T "searchLoading" }}" data-t-unavailable="{{ T "searchUnavailable" }}">
+  <div class="search-panel" role="dialog" aria-modal="true" aria-label="{{ T "search" }}">
+    <div class="search-box">
+      {{ partial "icons.html" "search" }}
+      <input id="search-input" type="search" autocomplete="off" spellcheck="false" placeholder="{{ T "searchPlaceholder" }}" aria-label="{{ T "search" }}" aria-controls="search-results">
+      <kbd>Esc</kbd>
+    </div>
+    <p id="search-status" class="search-status" aria-live="polite"></p>
+    <ol id="search-results" class="search-results"></ol>
+    <button id="search-more" type="button" class="search-more" hidden>{{ T "searchMore" }}</button>
+  </div>
+</div>

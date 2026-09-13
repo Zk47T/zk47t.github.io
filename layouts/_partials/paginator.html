@@ -1,0 +1,13 @@
+{{- if gt .TotalPages 1 }}
+<nav class="pager" aria-label="Pagination">
+  {{ if .HasPrev }}<a href="{{ .Prev.URL }}" rel="prev">{{ partial "icons.html" "arrow-left" }}</a>{{ end }}
+  {{- $cur := .PageNumber -}}
+  {{- range .Pagers }}
+    {{- $n := .PageNumber -}}
+    {{- if or (le $n 2) (ge $n (sub $.TotalPages 1)) (le (sub $n $cur) 1 | and (ge (sub $n $cur) -1)) }}
+      <a href="{{ .URL }}" class="{{ if eq $n $cur }}active{{ end }}">{{ $n }}</a>
+    {{- else if or (eq $n 3) (eq $n (sub $.TotalPages 2)) }}<span class="dots">…</span>{{ end -}}
+  {{- end }}
+  {{ if .HasNext }}<a href="{{ .Next.URL }}" rel="next">{{ partial "icons.html" "arrow-right" }}</a>{{ end }}
+</nav>
+{{- end }}

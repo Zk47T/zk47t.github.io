@@ -1,0 +1,26 @@
+{{- /* Tô token cho MỘT dòng lệnh (đã đổi < > & sang U+E000/E001/E002). Ngữ cảnh: dict s (chuỗi), cmds (regex tên lệnh), cont (dòng nối tiếp của lệnh trước bằng \).
+       Thứ tự thay thế quan trọng: comment cuối dòng tách trước, rồi string → URL → option → biến → keyword → tên lệnh → path → toán tử. */ -}}
+{{- $s := .s -}}{{- $cmds := .cmds -}}
+{{- $code := $s -}}{{- $cm := "" -}}
+{{- with findRESubmatch `^(.*?)(\s#.*)$` $s 1 }}{{ $code = index (index . 0) 1 }}{{ $cm = index (index . 0) 2 }}{{ end -}}
+{{- /* dòng gán biến: MACHINE ?= "x", IMAGE_INSTALL:append = " y", export VAR=z (export xử lý như lệnh) */ -}}
+{{- $asg := findRESubmatch `^(\s*)([A-Za-z_][\w:.\-\[\]]*)(\s*[?+:.]*=\s*)(.*)$` $code 1 -}}
+{{- $pre := "" -}}
+{{- if $asg }}{{ $g := index $asg 0 }}{{ $pre = printf `%s<span class="t-v">%s</span><span class="t-op">%s</span>` (index $g 1) (index $g 2) (index $g 3) }}{{ $code = index $g 4 }}{{ end -}}
+{{- $code = replaceRE `("[^"]*"|'[^']*')` `<span class="t-s">$1</span>` $code -}}
+{{- $code = replaceRE `(https?://[^\s"'\x{E000}\x{E001}]+)` `<a class="t-u" href="$1" target="_blank" rel="noopener">$1</a>` $code -}}
+{{- $code = replaceRE `((?:git|ssh|ftp|tftp)://[^\s"'\x{E000}\x{E001}]+)` `<span class="t-u">$1</span>` $code -}}
+{{- $code = replaceRE `(^|[\s=,])(--?[A-Za-z][\w.-]*)` `$1<span class="t-o">$2</span>` $code -}}
+{{- $code = replaceRE `(\$\{[^}]*\}|\$\([^)]*\)|\$[A-Za-z_][A-Za-z0-9_]*|\$[0-9@#?*!$-])` `<span class="t-v">$1</span>` $code -}}
+{{- if not $asg }}
+  {{- $code = replaceRE `(^|\s|;\s*)(if|then|else|elif|fi|for|while|until|do|done|case|esac|function|select)(\s|$|;)` `$1<span class="t-k">$2</span>$3` $code -}}
+  {{- $cmdRe := printf `((?:[\w.+-]*/)?(?:%s)|\.{0,2}/[\w./+-]+|[\w./+-]+\.(?:sh|py|pl))(\s|$|;|\||\x{E001})` $cmds -}}
+  {{- /* tên lệnh sau sudo / | / && / ; / then / do … */ -}}
+  {{- $code = replaceRE (printf `(\b(?:sudo|xargs|time|nohup|exec|env|watch|then|do|else)\s+(?:-\S+\s+)*|\|\|?\s*|\x{E002}\x{E002}\s*|;\s*|\$\()%s` $cmdRe) `$1<span class="t-c">$2</span>$3` $code -}}
+  {{- /* tên lệnh đầu dòng (không áp dụng cho dòng nối tiếp bằng \) */ -}}
+  {{- if not .cont }}{{ $code = replaceRE (printf `^(\s*)%s` $cmdRe) `$1<span class="t-c">$2</span>$3` $code }}{{ end -}}
+{{- end -}}
+{{- $code = replaceRE `(\s)((?:~|\.{1,2})?/[\w./+@%:~*?-]*|[\w.+~-]+/[\w./+@%:~*?-]*|~)` `$1<span class="t-pa">$2</span>` $code -}}
+{{- $code = replaceRE `(2\x{E001}\x{E002}1|\|\|?|\x{E002}\x{E002}|\x{E001}\x{E001}?|\x{E000}\x{E000}?|\\$)` `<span class="t-op">$1</span>` $code -}}
+{{- $code = replaceRE `(;)(\s|$)` `<span class="t-op">$1</span>$2` $code -}}
+{{- $pre | safeHTML }}{{ $code | safeHTML }}{{ with $cm }}<span class="t-cm">{{ . | safeHTML }}</span>{{ end -}}

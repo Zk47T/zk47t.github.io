@@ -1,0 +1,184 @@
+baseURL: "https://embeddedlinux.blog/"
+title: "Embedded Linux Blog"
+
+enableRobotsTXT: true
+enableGitInfo: true          # "cập nhật lần cuối" lấy từ git commit
+enableEmoji: true
+summaryLength: 40
+pagination:
+  pagerSize: 12
+
+# ---------------------------------------------------------------- languages
+# Tiếng Việt ở root (giữ nguyên URL cũ của WordPress), tiếng Anh dưới /en/.
+defaultContentLanguage: vi
+defaultContentLanguageInSubdir: false
+languages:
+  vi:
+    label: Tiếng Việt
+    weight: 1
+    title: "Embedded Linux Blog"
+    params:
+      tagline: "Yocto · U-Boot · Kernel · Driver · Android BSP"
+      description: "Blog của Nguyễn Minh Tiến về Embedded Linux: Yocto, U-Boot, kernel, device driver, Android BSP trên BeagleBone, STM32MP1, i.MX93, LicheePi. Trước đây là Embedded Linux A-Z."
+    menu:
+      main:
+        - identifier: home
+          name: Trang chủ
+          pageRef: /
+          weight: 1
+          params: { icon: home }
+        - identifier: community
+          name: Cộng đồng
+          url: "https://www.facebook.com/groups/1291288389349930/"
+          weight: 2
+          params: { icon: users, external: true }
+        - identifier: posts
+          name: Bài viết
+          pageRef: /posts
+          weight: 3
+          params: { icon: posts }
+        - identifier: series
+          name: Series
+          pageRef: /series
+          weight: 4
+          params: { icon: series, dropdown: series }
+        - identifier: boards
+          name: Boards
+          pageRef: /boards
+          weight: 5
+          params: { icon: board, dropdown: boards }
+        - identifier: about
+          name: Giới thiệu
+          pageRef: /about
+          weight: 6
+          params: { icon: about }
+  en:
+    label: English
+    weight: 2
+    title: "Embedded Linux Blog"
+    params:
+      tagline: "Yocto · U-Boot · Kernel · Drivers · Android BSP"
+      description: "Nguyen Minh Tien's notes on Embedded Linux: Yocto, U-Boot, kernel, device drivers and Android BSP on BeagleBone, STM32MP1, i.MX93, LicheePi. Formerly Embedded Linux A-Z."
+    menu:
+      main:
+        - identifier: home
+          name: Home
+          pageRef: /
+          weight: 1
+          params: { icon: home }
+        - identifier: community
+          name: Community
+          url: "https://www.facebook.com/groups/1291288389349930/"
+          weight: 2
+          params: { icon: users, external: true }
+        - identifier: posts
+          name: Posts
+          pageRef: /posts
+          weight: 3
+          params: { icon: posts }
+        - identifier: series
+          name: Series
+          pageRef: /series
+          weight: 4
+          params: { icon: series, dropdown: series }
+        - identifier: boards
+          name: Boards
+          pageRef: /boards
+          weight: 5
+          params: { icon: board, dropdown: boards }
+        - identifier: about
+          name: About
+          pageRef: /about
+          weight: 6
+          params: { icon: about }
+
+# ---------------------------------------------------------------- content
+# Bài cũ giữ URL WordPress qua `url:` trong front matter; bài mới đi vào /posts/<slug>/
+permalinks:
+  page:
+    posts: /posts/:slug/
+
+taxonomies:
+  category: categories
+  tag: tags
+  series: series
+  board: boards
+  author: authors
+
+outputs:
+  home: [html, rss]
+  page: [html]
+  section: [html, rss]
+  taxonomy: [html]
+  term: [html, rss]
+
+markup:
+  highlight:
+    noClasses: false
+    lineNos: false
+    guessSyntax: true
+  goldmark:
+    renderer:
+      unsafe: true            # cho phép <video>, <details> raw HTML trong markdown
+    parser:
+      attribute:
+        block: true
+    extensions:
+      typographer:
+        disable: true         # giữ nguyên ký tự gõ: không đổi -- thành gạch ngang dài, ... thành dấu ba chấm, "" thành ngoặc cong (lệnh như --compose trong đoạn văn phải đúng)
+  tableOfContents:
+    startLevel: 2
+    endLevel: 4
+
+# lastmod: ưu tiên front matter (ngày sửa thật từ WordPress), rồi mới tới git
+frontmatter:
+  lastmod: ["lastmod", ":git", "date"]
+
+sitemap:
+  changefreq: weekly
+  priority: 0.5
+
+# ---------------------------------------------------------------- site params
+params:
+  author: "Nguyễn Minh Tiến"
+  alt_name: "Embedded Linux A-Z"   # tên cũ trên WordPress - giữ làm alternateName (JSON-LD WebSite) cho SEO
+  logo: /img/logo.jpg
+  avatar: /img/logo.jpg          # sidebar: chỉ dùng logo, không dùng ảnh chân dung
+  default_author: tien           # id trong data/authors.yaml; bài không khai `authors:` thuộc người này
+  # nút "Viết bài cùng mình" ở bảng tác giả -> GitHub issue form (.github/ISSUE_TEMPLATE/new-post.yml)
+  contribute_url: "https://github.com/Zk47T/zk47t.github.io/issues/new?template=new-post.yml"
+  github_repo: "https://github.com/Zk47T/zk47t.github.io"
+  edit_base: "https://github.com/Zk47T/zk47t.github.io/edit/main/content"
+  social:
+    - { name: Facebook Page, icon: facebook, url: "https://www.facebook.com/profile.php?id=61579958129080" }
+    - { name: Community,     icon: users,    url: "https://www.facebook.com/groups/1291288389349930/" }
+    - { name: GitHub,   icon: github,   url: "https://github.com/Zk47T" }
+    - { name: LinkedIn, icon: linkedin, url: "https://www.linkedin.com/in/zk47tien/" }
+    - { name: YouTube,  icon: youtube,  url: "https://www.youtube.com/@embeddedlinuxblog" }
+    - { name: TikTok,   icon: tiktok,   url: "https://www.tiktok.com/@embeddedlinuxblog" }
+  # Dải board trên trang chủ: slideshow chạy liên tục (marquee), rê chuột vào thì dừng.
+  # `board` = slug trang board (content/boards/<slug>) - chưa có thì link về /boards/.
+  # Ảnh để ở static/img/boards/<file>.webp; thiếu file thì hiện icon thay thế (không vỡ layout).
+  # `credit` = ghi công ảnh (CC) - hiện ở cuối trang /boards/ và README.
+  hero_boards:
+    - { name: "Beaglebone Black", image: /img/boards/beaglebone-black.webp, board: beaglebone-black }
+    - { name: "STM32MP157",       image: /img/boards/stm32mp157.webp,       board: stm32mp157 }
+    - { name: "FRDM i.MX93",      image: /img/boards/frdm-imx93.webp,      board: frdm-i.mx93 }
+    - { name: "FRDM i.MX95",      image: /img/boards/frdm-imx95.webp,      board: frdm-imx95 }
+    - { name: "FRDM i.MX95 Pro",  image: /img/boards/frdm-imx95-pro.webp,  board: frdm-imx95-pro }   # ảnh: bạn tự thả file vào
+    - { name: "RZ/V2L EVKIT",     image: /img/boards/rz-v2l-evkit.webp,    board: rz-v2l-evkit }     # ảnh: bạn tự thả file vào
+    - { name: "Raspberry Pi 4",   image: /img/boards/raspberry-pi-4.webp,  board: raspberry-pi-4, credit: "Laserlicht, Wikimedia Commons, CC BY-SA 4.0" }
+    - { name: "Raspberry Pi 5",   image: /img/boards/raspberry-pi-5.webp,  board: raspberry-pi-5, credit: "Simon Waldherr, Wikimedia Commons, CC BY 4.0" }
+    - { name: "LicheePi Nano",    image: /img/boards/licheepi-nano.webp,    board: licheepi-nano }
+    - { name: "Orange Pi Zero 2W", image: /img/boards/orange-pi-zero-2w.webp, board: orange-pi-zero-2w }
+  hero_marquee: true
+  image_credits:                 # ghi công ảnh CC không nằm trong hero_boards (hiện cuối trang /boards/)
+    - "QEMU logo: Benoît Canet, Wikimedia Commons, CC BY 3.0"             # false = dải tĩnh như cũ
+  infinite_scroll: true          # cuộn hết bài -> tự tải bài kế tiếp trong series
+  # Thống kê truy cập (thay Jetpack Stats). GoatCounter: miễn phí cho blog cá nhân, không cookie (không cần banner đồng ý).
+  # Tạo site tại https://www.goatcounter.com/signup (vd. mã "embeddedlinux") rồi điền mã vào đây. Để trống = tắt.
+  # Chỉ chèn script khi build production (hugo server không đếm). Infinite scroll đã tự báo lượt xem từng bài.
+  analytics:
+    goatcounter: "zk47t"         # dashboard: https://zk47t.goatcounter.com/
+  comments:
+    giscus: false                # bật sau khi tạo GitHub Discussions

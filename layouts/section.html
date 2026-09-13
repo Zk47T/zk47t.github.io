@@ -1,0 +1,18 @@
+{{ define "main-class" }}list{{ end }}
+{{ define "main" }}
+  <header class="page-head">
+    <h1>{{ .Title }}</h1>
+    {{ with .Description }}<p class="lead">{{ . }}</p>{{ end }}
+  </header>
+  {{ .Content }}
+  {{- $pages := .RegularPages.ByDate.Reverse -}}
+  {{- if eq (len $pages) 0 }}
+    {{- range hugo.Sites }}{{ if eq .Language.Lang "vi" }}{{ $pages = (where .RegularPages "Section" $.Section).ByDate.Reverse }}{{ end }}{{ end -}}
+    {{- if gt (len $pages) 0 }}<p class="note">{{ T "translatedFallback" }}</p>{{ end -}}
+  {{- end -}}
+  {{- $pag := .Paginate $pages -}}
+  <div class="post-grid">
+    {{- range $pag.Pages }}{{ partial "card.html" . }}{{ end }}
+  </div>
+  {{ partial "paginator.html" $pag }}
+{{ end }}

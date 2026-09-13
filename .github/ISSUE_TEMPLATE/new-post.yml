@@ -1,0 +1,144 @@
+# SINH TỰ ĐỘNG bởi tools/sync_issue_form.py, đừng sửa tay danh sách series/board (sửa script rồi chạy lại).
+name: "Gửi bài viết / Submit a post"
+description: "Viết bài cho Embedded Linux Blog bằng markdown, chọn series và board muốn đăng vào."
+title: "[Bài viết] "
+labels: ["bai-viet-moi"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Cảm ơn bạn muốn viết cùng blog! Điền form bên dưới, mình sẽ đọc, góp ý ngay trong issue này, rồi đăng lên blog kèm tên bạn trên bảng **Người đóng góp**.
+        *Thanks for writing with us! Fill in the form; we review it here and publish it with your name on the Contributors board.*
+
+        - Nội dung viết bằng **markdown**. Ảnh chụp màn hình: kéo thả thẳng vào ô nội dung, GitHub tự tải lên.
+        - Lệnh và code để trong khối ```` ```bash ```` (hoặc ```` ```c ````, ```` ```dts ````...) để blog tô màu.
+        - Chưa xong cũng gửi được, cứ ghi "bản nháp" ở tiêu đề.
+
+  - type: input
+    id: author
+    attributes:
+      label: "Tên hiển thị / Display name"
+      description: "Tên sẽ hiện ở bài viết và bảng Người đóng góp."
+      placeholder: "Nguyễn Văn A"
+    validations:
+      required: true
+
+  - type: input
+    id: author-bio
+    attributes:
+      label: "Giới thiệu ngắn về bạn / Short bio"
+      description: "Một dòng, hiện trên card tác giả. Kèm link GitHub/LinkedIn nếu muốn."
+      placeholder: "Embedded Linux engineer · https://github.com/..."
+
+  - type: input
+    id: post-title
+    attributes:
+      label: "Tiêu đề bài / Post title"
+      placeholder: "Build Yocto cho board XYZ"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: language
+    attributes:
+      label: "Ngôn ngữ / Language"
+      options:
+        - "Tiếng Việt"
+        - "English"
+        - "Cả hai (viết cả 2 bản) / Both"
+      default: 0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: series
+    attributes:
+      label: "Muốn đăng vào series nào? / Which series?"
+      description: "Chỉ là nguyện vọng, mình có thể gợi ý series phù hợp hơn."
+      options:
+        - "Bài lẻ, không thuộc series / Standalone post"
+        - "Yocto-BBB"
+        - "Boot-BBB"
+        - "Android"
+        - "BBB-Linux"
+        - "Device-Driver-Lichee"
+        - "Yocto-Lichee"
+        - "C-MCU"
+        - "Kernel-BBB"
+        - "Yocto-MX93"
+        - "Yocto-STM32MP1"
+        - "Series mới (ghi tên ở ô bên dưới) / New series"
+      default: 0
+    validations:
+      required: true
+
+  - type: input
+    id: series-detail
+    attributes:
+      label: "Tên series mới hoặc vị trí mong muốn / New series name or position"
+      placeholder: "Ví dụ: Yocto-RPi5, hoặc: sau bài Yocto-BBB 20"
+
+  - type: dropdown
+    id: boards
+    attributes:
+      label: "Board / Boards"
+      multiple: true
+      options:
+        - "Beaglebone Black"
+        - "FRDM i.MX93"
+        - "LicheePi Nano"
+        - "Orange Pi Zero 2W"
+        - "QEMU"
+        - "Raspberry Pi 4"
+        - "STM32MP157"
+        - "Board khác (ghi ở ô bên dưới) / Other board"
+        - "Không dùng board cụ thể / No specific board"
+
+  - type: input
+    id: board-detail
+    attributes:
+      label: "Board khác / Other board"
+      placeholder: "Ví dụ: Raspberry Pi 5, RZ/V2L EVKIT"
+
+  - type: input
+    id: tags
+    attributes:
+      label: "Tag / Tags"
+      description: "Cách nhau bằng dấu phẩy."
+      placeholder: "yocto, u-boot, device tree"
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: "Tóm tắt 1-2 câu / Summary"
+      description: "Hiện dưới tiêu đề trong danh sách bài và kết quả tìm kiếm."
+    validations:
+      required: true
+
+  - type: textarea
+    id: content
+    attributes:
+      label: "Nội dung bài (markdown) / Post content (markdown)"
+      description: "Dùng ## cho mục lớn, ### cho mục nhỏ. Kéo thả ảnh vào đây."
+      placeholder: |
+        ## 1. Chuẩn bị
+
+        Mô tả phần cứng, phiên bản phần mềm...
+
+        ```bash
+        bitbake core-image-minimal
+        ```
+
+        ## 2. ...
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: "Xác nhận / Confirmation"
+      options:
+        - label: "Bài do mình viết, ảnh do mình chụp hoặc được phép dùng. / I wrote this post and may use its images."
+          required: true
+        - label: "Đồng ý để blog đăng bài, sửa lỗi chính tả và định dạng, ghi tên mình là tác giả. / I agree the blog may publish it with light edits, credited to me."
+          required: true

@@ -1,0 +1,10 @@
+{{- /* Card series: thumbnail = ảnh bài đầu tiên. Ngữ cảnh: dict page (term page), count */ -}}
+{{- $p := .page -}}
+{{- $first := index (sort (sort $p.Pages "Date" "asc") "Params.series_order" "asc") 0 -}}
+<a class="series-card" href="{{ $p.RelPermalink }}">
+  <div class="series-thumb">{{ with $first }}{{ with .Params.image }}<img src="{{ . }}" alt="" loading="lazy">{{ end }}{{ end }}</div>
+  <div class="series-body">
+    <h3>{{ $p.Title }}</h3>
+    <span class="count">{{ .count }} {{ T "posts" }}</span>
+  </div>
+</a>

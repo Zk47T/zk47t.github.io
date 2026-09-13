@@ -1,0 +1,21 @@
+# Tác giả của blog. Key = id dùng trong front matter bài viết: `authors: [tien]`.
+# Bài trong content/posts/ không khai `authors` sẽ mặc định là `tien` (cascade trong content/posts/_index.*.md).
+# Trang tác giả: /authors/<id>/ - cần thêm content/authors/<id>/_index.{vi,en}.md để đặt title.
+# image = avatar tròn (logo); photo = ảnh lớn hiện ở card tác giả (trang chủ / trang tác giả), tuỳ chọn.
+tien:
+  name: "Nguyễn Minh Tiến"
+  handle: "Zk47T"                 # GitHub
+  image: /img/logo.jpg
+  photo: /img/authors/tien-photo.webp
+  role:
+    vi: "Embedded Linux · Android BSP · bring-up board mới"
+    en: "Embedded Linux · Android BSP · new-board bring-up"
+  motto:
+    vi: "Mỗi ngày học thêm vài thứ mới."
+    en: "Learn a few new things every day."
+  email: zizuzacker@gmail.com     # email công việc: hiện ở trang tác giả + icon thư ở mọi card
+  page: /about/                   # trang giới thiệu đầy đủ
+  links:
+    - { name: GitHub,   icon: github,   url: "https://github.com/Zk47T" }
+    - { name: LinkedIn, icon: linkedin, url: "https://www.linkedin.com/in/zk47tien/" }
+    - { name: YouTube,  icon: youtube,  url: "https://www.youtube.com/@embeddedlinuxblog" }

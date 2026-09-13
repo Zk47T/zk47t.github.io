@@ -1,0 +1,13 @@
+{{- /* Lưới series cuối bài. Ngữ cảnh: dict exclude (tên series bỏ qua), title. EN chưa có series -> lấy của bản VI */ -}}
+{{- $tax := site.Taxonomies.series -}}
+{{- if eq (len $tax) 0 }}{{ range hugo.Sites }}{{ if eq .Language.Lang "vi" }}{{ $tax = .Taxonomies.series }}{{ end }}{{ end }}{{ end -}}
+{{- $items := slice -}}
+{{- range $tax.ByCount }}{{ if ne .Page.Title $.exclude }}{{ $items = $items | append . }}{{ end }}{{ end -}}
+{{- with $items }}
+  <section class="series-more">
+    <h2 class="section-title">{{ $.title }}</h2>
+    <div class="series-grid">
+      {{- range . }}{{ partial "series-card.html" (dict "page" .Page "count" .Count) }}{{ end }}
+    </div>
+  </section>
+{{- end }}

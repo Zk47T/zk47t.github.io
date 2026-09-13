@@ -152,7 +152,6 @@ params:
   default_author: tien           # id trong data/authors.yaml; bài không khai `authors:` thuộc người này
   # nút "Viết bài cùng mình" ở bảng tác giả -> GitHub issue form (.github/ISSUE_TEMPLATE/new-post.yml)
   contribute_url: "https://github.com/Zk47T/zk47t.github.io/issues/new?template=new-post.yml"
-  github_repo: "https://github.com/Zk47T/zk47t.github.io"
   edit_base: "https://github.com/Zk47T/zk47t.github.io/edit/main/content"
   social:
     - { name: Facebook Page, icon: facebook, url: "https://www.facebook.com/profile.php?id=61579958129080" }

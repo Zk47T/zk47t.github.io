@@ -139,8 +139,6 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 #main { flex: 1; width: 100%; max-width: var(--content-w); margin: 0 auto; padding: 28px 28px 56px; }
 #footer { padding: 18px 28px; border-top: 1px solid var(--border); font-family: var(--font-mono); font-size: .72rem; color: var(--muted); text-align: center; }
-#footer .sep { margin: 0 8px; }
-#footer a { color: var(--muted); }
 
 /* --------------------------------------------------------------- home: hero boards (marquee) */
 .hero-boards { margin-bottom: 30px; }

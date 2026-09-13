@@ -1,3 +1,4 @@
+/** @OnlyCurrentDoc */
 /**
  * Bình luận cho Embedded Linux Blog: Google Apps Script + Google Sheet (miễn phí, chạy bằng tài khoản Google của chủ blog).
  *
@@ -13,6 +14,8 @@
  *  Lần đầu Google sẽ hỏi quyền gửi mail: cho phép. Kết quả (và lỗi nếu có) hiện ở "Execution log".
  *  Mỗi bình luận cũng ghi kết quả gửi mail vào cột "mail" (sent / lỗi) trong sheet.
  *
+ * Quyền: dòng @OnlyCurrentDoc ở đầu file giới hạn script chỉ được đụng vào đúng Google Sheet này (không đọc được Sheet/Drive khác).
+ *
  * Quản lý: mỗi bình luận là 1 dòng trong sheet "comments". Muốn ẩn: đặt cột hidden = TRUE. Muốn xoá: xoá dòng.
  * Mỗi bình luận mới gửi 1 email về OWNER_EMAIL (Gmail thường: tối đa khoảng 100 mail/ngày).
  */
@@ -25,6 +28,8 @@ const MAX_BODY = 2000;
 const MAX_LINKS = 2;          // chống spam: quá 2 link thì từ chối
 const MIN_ELAPSED_MS = 3000;  // chống bot: gửi trong vòng 3 giây sau khi mở trang thì từ chối
 const COOLDOWN_S = 30;        // cùng tên + cùng bài: phải cách nhau 30 giây
+const GLOBAL_MAX = 20;        // cả site tối đa 20 bình luận mới mỗi 10 phút: chặn spam dồn dập, giữ quota mail và Sheet
+const GLOBAL_WINDOW_S = 600;
 
 const HEADER = ['id', 'time', 'thread', 'url', 'title', 'name', 'body', 'hidden', 'mail'];
 
@@ -96,6 +101,7 @@ function doPost(e) {
   const cache = CacheService.getScriptCache();
   const key = 'cd_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, name.toLowerCase() + '|' + thread));
   if (cache.get(key)) return json_({ ok: false, error: 'slow_down' });
+  const bucket = 'g_' + Math.floor(Date.now() / (GLOBAL_WINDOW_S * 1000));
 
   const id = Utilities.getUuid();
   const now = new Date();
@@ -104,6 +110,9 @@ function doPost(e) {
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
+    const used = Number(cache.get(bucket) || 0);
+    if (used >= GLOBAL_MAX) return json_({ ok: false, error: 'slow_down' });
+    cache.put(bucket, String(used + 1), GLOBAL_WINDOW_S);
     sh.appendRow([id, now, safeCell_(thread), safeCell_(url), safeCell_(title), safeCell_(name), safeCell_(body), false, '']);
     row = sh.getLastRow();
   } finally {

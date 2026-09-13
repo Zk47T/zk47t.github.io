@@ -3,6 +3,15 @@
 {{- $desc := .Description | default .Summary | default site.Params.description | plainify | truncate 160 -}}
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+{{- /* Content-Security-Policy (chỉ bản production; GitHub Pages không cho đặt header nên dùng thẻ meta).
+       Chỉ cho chạy script của site + GoatCounter, chỉ cho gọi mạng tới Apps Script bình luận + GoatCounter. */ -}}
+{{- if hugo.IsProduction }}
+{{- $connect := slice "'self'" -}}
+{{- with site.Params.comments.endpoint }}{{ $connect = $connect | append "https://script.google.com" "https://script.googleusercontent.com" }}{{ end -}}
+{{- with site.Params.analytics.goatcounter }}{{ $connect = $connect | append (printf "https://%s.goatcounter.com" .) }}{{ end }}
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'{{ with site.Params.analytics.goatcounter }} https://gc.zgo.at{{ end }} 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self'; frame-src https://www.youtube-nocookie.com https://www.youtube.com; connect-src {{ delimit $connect " " }}; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+{{- end }}
 <title>{{ $title }}</title>
 <meta name="description" content="{{ $desc }}">
 <link rel="canonical" href="{{ .Permalink }}">
@@ -43,10 +52,8 @@
 {{- /* CSS */ -}}
 {{- $css := slice (resources.Get "css/main.css") (resources.Get "css/chroma.css") | resources.Concat "css/site.css" | minify | fingerprint }}
 <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
-<script>
-  // Áp theme trước khi vẽ để không nháy. Mặc định: tối (giống blog cũ).
-  (function(){try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();
-</script>
+{{- $themeInit := resources.Get "js/theme-init.js" | minify | fingerprint }}
+<script src="{{ $themeInit.RelPermalink }}" integrity="{{ $themeInit.Data.Integrity }}"></script>
 {{- /* JSON-LD WebSite (trang chủ): tên mới + tên cũ (alternateName) để giữ brand "Embedded Linux A-Z" */ -}}
 {{- if .IsHome }}
 <script type="application/ld+json">

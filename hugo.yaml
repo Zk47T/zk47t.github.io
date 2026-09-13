@@ -138,6 +138,11 @@ sitemap:
   changefreq: weekly
   priority: 0.5
 
+# YouTube nhúng qua youtube-nocookie.com: không đặt cookie theo dõi cho tới khi người đọc bấm xem
+privacy:
+  youtube:
+    privacyEnhanced: true
+
 # ---------------------------------------------------------------- site params
 params:
   author: "Nguyễn Minh Tiến"

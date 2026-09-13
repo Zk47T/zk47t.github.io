@@ -248,16 +248,26 @@
       };
       const setCount = (n) => { count = n; countEl.textContent = n; countEl.hidden = !n; };
 
+      // nhớ bình luận lần xem trước trong trình duyệt: hiện ngay, rồi cập nhật khi server trả về
+      const memKey = 'comments:' + box.dataset.thread;
+      const render = (data) => {
+        const extra = data.total > data.comments.length ? [note(msg('Truncated').replace('{n}', data.comments.length).replace('{total}', data.total))] : [];
+        list.replaceChildren(...extra, ...(data.comments.length ? data.comments.map(item) : [note(msg('Empty'))]));
+        setCount(data.total ?? data.comments.length);
+      };
+      const remember = (data) => { try { localStorage.setItem(memKey, JSON.stringify({ total: data.total ?? data.comments.length, comments: data.comments })); } catch (e) {} };
+      let shownFromMemory = false;
+      try { const mem = JSON.parse(localStorage.getItem(memKey) || 'null'); if (mem && Array.isArray(mem.comments)) { render(mem); shownFromMemory = true; } } catch (e) {}
       async function load() {
         try {
           const res = await fetch(ep + '?thread=' + encodeURIComponent(box.dataset.thread));
           const data = await res.json();
           if (!data.ok) throw new Error(data.error);
-          list.replaceChildren(...(data.comments.length ? data.comments.map(item) : [note(msg('Empty'))]));
-          setCount(data.comments.length);
-        } catch (e) { list.replaceChildren(note(msg('Error'))); }
+          render(data); remember(data);
+        } catch (e) { if (!shownFromMemory) list.replaceChildren(note(msg('Error'))); }
       }
-      const io = new IntersectionObserver((en) => { if (en.some(x => x.isIntersecting)) { io.disconnect(); load(); } }, { rootMargin: '400px 0px' });
+      // bắt đầu tải khi còn cách khung bình luận khoảng 2 màn hình, để lúc đọc tới nơi là đã có
+      const io = new IntersectionObserver((en) => { if (en.some(x => x.isIntersecting)) { io.disconnect(); load(); } }, { rootMargin: '1600px 0px' });
       io.observe(box);
 
       form.addEventListener('submit', async (e) => {
@@ -272,7 +282,11 @@
             website: $('.comment-hp', form).value, elapsed: Date.now() - openedAt }) });
           const data = await res.json();
           if (!data.ok) { status.textContent = msg(COMMENT_ERR[data.error] || 'Failed'); return; }
-          if (data.comment) { if (!count) list.replaceChildren(); list.appendChild(item(data.comment)); setCount(count + 1); }
+          if (data.comment) {
+            if (!count) list.replaceChildren();
+            list.appendChild(item(data.comment)); setCount(count + 1);
+            try { const mem = JSON.parse(localStorage.getItem(memKey) || '{"total":0,"comments":[]}'); mem.comments.push(data.comment); mem.total = (mem.total || 0) + 1; localStorage.setItem(memKey, JSON.stringify(mem)); } catch (err) {}
+          }
           bodyInput.value = ''; status.textContent = msg('Sent');
           try { localStorage.setItem('comment-name', name); } catch (err) {}
         } catch (err) { status.textContent = msg('Failed'); }
@@ -281,6 +295,13 @@
     });
   }
   initComments();
+  // link #comments (từ email): ảnh phía trên tải xong làm trang dài ra, cuộn lại vài lần cho tới khi người đọc tự cuộn
+  if (location.hash === '#comments' && $('#comments')) {
+    let userMoved = false;
+    const stop = () => { userMoved = true; };
+    ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(ev => addEventListener(ev, stop, { once: true, passive: true }));
+    [0, 300, 800, 1500, 2500].forEach(ms => setTimeout(() => { if (!userMoved) $('#comments').scrollIntoView({ block: 'start', behavior: 'instant' }); }, ms));
+  }
 
   /* ---------------- infinite scroll trong series ----------------
      Hết bài -> fetch bài kế tiếp (data-next) và nối <article> vào dưới.

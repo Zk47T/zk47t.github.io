@@ -1,10 +1,10 @@
 {{- /* Khung bình luận (tên + nội dung). Dữ liệu qua Google Apps Script (params.comments.endpoint, xem tools/comments/Code.gs).
        Thread = tên file bài (không kèm ngôn ngữ): bản VI và EN dùng chung bình luận. Endpoint trống thì không hiện gì. */ -}}
 {{- with site.Params.comments.endpoint }}
-<section class="comments" data-endpoint="{{ . }}" data-thread="posts/{{ $.File.ContentBaseName }}" data-title="{{ $.Title }}" data-url="{{ $.RelPermalink }}" data-locale="{{ $.Language.Lang }}"
+<section class="comments" id="comments" data-endpoint="{{ . }}" data-thread="posts/{{ $.File.ContentBaseName }}" data-title="{{ $.Title }}" data-url="{{ $.RelPermalink }}" data-locale="{{ $.Language.Lang }}"
          data-msg-empty="{{ T "commentsEmpty" }}" data-msg-error="{{ T "commentsLoadError" }}" data-msg-sending="{{ T "commentSending" }}" data-msg-sent="{{ T "commentSent" }}"
          data-msg-invalid="{{ T "commentInvalid" }}" data-msg-toofast="{{ T "commentTooFast" }}" data-msg-slowdown="{{ T "commentSlowDown" }}"
-         data-msg-toomanylinks="{{ T "commentTooManyLinks" }}" data-msg-failed="{{ T "commentFailed" }}">
+         data-msg-toomanylinks="{{ T "commentTooManyLinks" }}" data-msg-failed="{{ T "commentFailed" }}" data-msg-truncated="{{ T "commentsTruncated" }}">
   <h2 class="section-title">{{ partial "icons.html" "comment" }} {{ T "comments" }} <span class="count" hidden></span></h2>
   <ol class="comment-list" aria-live="polite"><li class="comment-empty">{{ T "commentsLoading" }}</li></ol>
   <form class="comment-form" novalidate>

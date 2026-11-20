@@ -19,3 +19,12 @@ tien:
     - { name: GitHub,   icon: github,   url: "https://github.com/Zk47T" }
     - { name: LinkedIn, icon: linkedin, url: "https://www.linkedin.com/in/zk47tien/" }
     - { name: YouTube,  icon: youtube,  url: "https://www.youtube.com/@embeddedlinuxblog" }
+
+tuan:
+  name: "Tuấn Trương Nho"
+  handle: "TuanTNT19"             # GitHub; gửi bài qua issue #2, #3, #4 (series OpenWrt-RPi4)
+  role:
+    vi: "Embedded Linux · BSP · Modem software"
+    en: "Embedded Linux · BSP · Modem software"
+  links:
+    - { name: GitHub, icon: github, url: "https://github.com/TuanTNT19" }

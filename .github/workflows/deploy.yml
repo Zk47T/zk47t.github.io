@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # Bài hẹn giờ: Hugo không build bài có `date:` trong tương lai, nên mỗi ngày build lại một lần
+  # để bài tới ngày thì tự lên site. 01:05 UTC = 08:05 giờ VN (hẹn giờ bài lúc 08:00 +07:00).
+  # GitHub có thể chạy trễ vài chục phút, và tự tắt lịch này nếu repo 60 ngày không có commit.
+  schedule:
+    - cron: "5 1 * * *"
 
 permissions:
   contents: read

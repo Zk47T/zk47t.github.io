@@ -62,6 +62,7 @@ body:
         - "Android"
         - "BBB-Linux"
         - "Device-Driver-Lichee"
+        - "OpenWrt-RPi4"
         - "Yocto-Lichee"
         - "C-MCU"
         - "Kernel-BBB"

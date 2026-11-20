@@ -5,7 +5,8 @@
   {{- $keys := slice -}}
   {{- range hugo.Sites }}{{ with index .Taxonomies.authors $id }}{{ range .Pages }}{{ $keys = $keys | append .TranslationKey }}{{ end }}{{ end }}{{ end -}}
   {{- $n := len ($keys | uniq) -}}
-  {{- $rows = $rows | append (dict "id" $id "count" $n) -}}
+  {{- /* chỉ hiện tác giả đã có bài lên site: bài hẹn giờ (date tương lai) chưa tính */ -}}
+  {{- if $n }}{{ $rows = $rows | append (dict "id" $id "count" $n) }}{{ end -}}
 {{- end -}}
 {{- $rows = sort $rows "count" "desc" -}}
 {{- $many := gt (len $rows) 1 -}}

@@ -1,0 +1,82 @@
+name: Preview (có bài hẹn giờ)
+
+# Build bản xem trước của PR, có cả bài `date:` tương lai, rồi đẩy lên https://zkt472002.github.io/
+# (Pages của account phụ; repo này chỉ có 1 site Pages là site thật).
+# - Chỉ 1 bản preview tại một thời điểm: lần build sau ghi đè lần trước.
+# - Tắt bình luận và GoatCounter, có noindex + thanh nhắc "bản xem trước" (xem .github/preview/hugo.preview.yaml).
+# - Cần secret PREVIEW_DEPLOY_KEY = private key của deploy key (quyền ghi) trên repo zkt472002/zkt472002.github.io.
+# - PR từ fork không có secret nên job bị bỏ qua; dùng `pull_request`, KHÔNG dùng `pull_request_target`.
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: preview
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    environment:
+      name: preview
+      url: https://zkt472002.github.io/
+    env:
+      HUGO_VERSION: 0.166.0
+      # giống deploy.yml: đổi version thì đổi cả checksum
+      HUGO_SHA256: 52b06555f739b1a08e04f5c31296e9bdf166a012e9b7e3137befc889dbc24db8
+      PREVIEW_URL: https://zkt472002.github.io/
+      PREVIEW_REPO: git@github.com:zkt472002/zkt472002.github.io.git
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install Hugo (extended)
+        run: |
+          curl -fsSL -o hugo.deb "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb"
+          echo "${HUGO_SHA256}  hugo.deb" | sha256sum -c -
+          sudo dpkg -i hugo.deb
+      - name: Build (có bài hẹn giờ)
+        run: |
+          label="commit ${HEAD_SHA:0:7}"
+          [ -n "$PR_NUMBER" ] && label="PR #${PR_NUMBER}, ${label}"
+          printf 'params:\n  preview: "%s"\n' "$label" > "$RUNNER_TEMP/label.yaml"
+          hugo --gc --minify --buildFuture --baseURL "$PREVIEW_URL" \
+            --config "hugo.yaml,.github/preview/hugo.preview.yaml,$RUNNER_TEMP/label.yaml"
+      - name: Search index (Pagefind)
+        run: npx --yes pagefind@1.5.2 --site public
+      - name: Push lên zkt472002.github.io
+        env:
+          DEPLOY_KEY: ${{ secrets.PREVIEW_DEPLOY_KEY }}
+        run: |
+          printf 'User-agent: *\nDisallow: /\n' > public/robots.txt   # preview: không cho máy tìm kiếm index
+          touch public/.nojekyll                                     # Pages phục vụ nguyên file, không chạy Jekyll
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/preview_key && chmod 600 ~/.ssh/preview_key
+          # host key của github.com lấy từ API chính thức (HTTPS), không tin mù lần kết nối đầu
+          curl -fsSL https://api.github.com/meta | jq -r '.ssh_keys[] | "github.com " + .' > ~/.ssh/known_hosts
+          export GIT_SSH_COMMAND="ssh -i ~/.ssh/preview_key -o IdentitiesOnly=yes"
+          export GIT_AUTHOR_NAME="preview bot" GIT_AUTHOR_EMAIL="preview@users.noreply.github.com"
+          export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME" GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
+          cd public
+          git init -q -b main
+          git remote add origin "$PREVIEW_REPO"
+          # lấy bản preview cũ (1 commit) để git chỉ gửi file thay đổi, không gửi lại ~90 MB ảnh mỗi lần
+          git fetch -q --depth 1 origin main || true
+          git add -A
+          git commit -q -m "Preview ${PR_NUMBER:+PR #$PR_NUMBER }${HEAD_SHA:0:7}"
+          git push -q --force origin main     # luôn chỉ 1 commit, repo preview không phình lịch sử
+          rm -f ~/.ssh/preview_key
+      - name: Summary
+        run: |
+          echo "Preview: ${PREVIEW_URL} (Pages cần khoảng 1 phút để cập nhật)" >> "$GITHUB_STEP_SUMMARY"

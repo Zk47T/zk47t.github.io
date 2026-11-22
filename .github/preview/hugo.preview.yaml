@@ -1,0 +1,9 @@
+# Ghi đè config cho bản preview (workflow .github/workflows/preview.yml):
+#   hugo --buildFuture -b https://zkt472002.github.io/ --config hugo.yaml,.github/preview/hugo.preview.yaml,<file label>
+# Build ở môi trường production (giữ CSP như site thật) nhưng tắt những thứ chạm vào dữ liệu thật.
+params:
+  preview: "preview"          # bật thanh nhắc + noindex; workflow ghi đè bằng "PR #N, commit abc1234"
+  comments:
+    endpoint: ""              # không gửi bình luận thử vào Google Sheet / email thật
+  analytics:
+    goatcounter: ""           # không đếm lượt xem preview vào GoatCounter

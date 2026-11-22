@@ -10,6 +10,10 @@
   {{ partial "sidebar.html" . }}
 
   <div id="page">
+    {{- /* chỉ có ở bản preview (workflow preview.yml đặt params.preview): nhắc đây không phải site thật */ -}}
+    {{- with site.Params.preview }}
+    <div class="preview-bar" role="note">{{ if eq $.Language.Lang "en" }}Preview build ({{ . }}), includes scheduled posts. The real site is{{ else }}Bản xem trước ({{ . }}), có cả bài hẹn giờ. Site thật là{{ end }} <a href="https://embeddedlinux.blog/">embeddedlinux.blog</a></div>
+    {{- end }}
     {{ partial "topbar.html" . }}
     <main id="main" class="{{ block "main-class" . }}{{ end }}">
       {{ block "main" . }}{{ end }}

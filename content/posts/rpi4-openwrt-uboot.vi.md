@@ -1,7 +1,7 @@
 ---
 title: '[OpenWrt-RPi4] 2. Bring-up U-Boot trên OpenWrt image cho Raspberry Pi 4'
-date: '2026-11-30T08:00:00+07:00'
-lastmod: '2026-11-30T08:00:00+07:00'   # = date: bài hẹn giờ, không để git (ngày merge) làm "Cập nhật" sớm hơn ngày đăng
+date: '2026-11-22T22:31:00+07:00'
+lastmod: '2026-11-22T22:31:00+07:00'   # = date: bài hẹn giờ, không để git (ngày merge) làm "Cập nhật" sớm hơn ngày đăng
 slug: rpi4-openwrt-uboot
 authors:
 - tuan

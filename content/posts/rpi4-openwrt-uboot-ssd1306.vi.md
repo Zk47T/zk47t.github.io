@@ -1,7 +1,7 @@
 ---
 title: '[OpenWrt-RPi4] 3. Bring-up SSD1306 trên U-Boot cho OpenWrt image với Raspberry Pi 4'
-date: '2026-12-07T08:00:00+07:00'
-lastmod: '2026-12-07T08:00:00+07:00'   # = date: bài hẹn giờ, không để git (ngày merge) làm "Cập nhật" sớm hơn ngày đăng
+date: '2026-11-22T22:32:00+07:00'
+lastmod: '2026-11-22T22:32:00+07:00'   # = date: bài hẹn giờ, không để git (ngày merge) làm "Cập nhật" sớm hơn ngày đăng
 slug: rpi4-openwrt-uboot-ssd1306
 authors:
 - tuan

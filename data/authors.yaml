@@ -23,6 +23,7 @@ tien:
 tuan:
   name: "Tuấn Trương Nho"
   handle: "TuanTNT19"             # GitHub; gửi bài qua issue #2, #3, #4 (series OpenWrt-RPi4)
+  image: /img/authors/tuan-photo.webp   # avatar tròn = chính ảnh lớn (CSS object-fit: cover cắt giữa), trình duyệt chỉ tải 1 lần
   photo: /img/authors/tuan-photo.webp
   role:
     vi: "Embedded Linux · BSP · Modem software"

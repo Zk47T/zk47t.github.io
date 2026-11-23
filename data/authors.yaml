@@ -23,8 +23,11 @@ tien:
 tuan:
   name: "Tuấn Trương Nho"
   handle: "TuanTNT19"             # GitHub; gửi bài qua issue #2, #3, #4 (series OpenWrt-RPi4)
+  photo: /img/authors/tuan-photo.webp
   role:
     vi: "Embedded Linux · BSP · Modem software"
     en: "Embedded Linux · BSP · Modem software"
+  email: tuantnt08@gmail.com
   links:
-    - { name: GitHub, icon: github, url: "https://github.com/TuanTNT19" }
+    - { name: GitHub,   icon: github,   url: "https://github.com/TuanTNT19" }
+    - { name: LinkedIn, icon: linkedin, url: "https://www.linkedin.com/in/tu%E1%BA%A5n-tr%C6%B0%C6%A1ng-nho-2048a7243/" }
